@@ -61,6 +61,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
     // Listening to all incoming messages
     client.on('message_create', async message => {
         console.log(message.body);
+        console.log("FROM: " + message.from);
     
         if (message.body === '!ping') {
             // send back "pong" to the chat the message was sent in
