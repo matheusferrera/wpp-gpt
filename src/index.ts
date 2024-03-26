@@ -39,6 +39,19 @@ function initializeWhatsAppClient(clientId: any) {
                 backupSyncIntervalMs: 300000
             })
         });
+
+        whatsappClient.on('loading_screen', (percent, message) => {
+            console.log('loading whatsapp connection...', percent, message);
+        });
+    
+        whatsappClient.on('authenticated', () => {
+            console.log('client authenticated');
+        });
+    
+        whatsappClient.on('auth_failure', msg => {
+            // Fired if session restore was unsuccessful
+            console.error('authentication failure', msg);
+        });
         
         whatsappClient.on('qr', (qr) => {
             qrcode.generate(qr, { small: true });
@@ -51,6 +64,20 @@ function initializeWhatsAppClient(clientId: any) {
         whatsappClient.on('message', (message) => {
             // Broadcast incoming messages to the corresponding WebSocket client
             io.to(clientId).emit('message-received', message);
+        });
+
+        whatsappClient.on('message_create', async message => {
+            console.log("message from: " + message.from);
+            console.log("message content: " + message.body);
+        
+            // if (message.body === '!ping') {
+            //     // send back "pong" to the chat the message was sent in
+            //     client.sendMessage(message.from, 'pong');
+            // }
+            // else if (message.body === '!chats') {
+            //     const chats = await client.getChats();
+            //     client.sendMessage(message.from, `The bot has ${chats.length} chats open.`);
+            // }
         });
         
         whatsappClient.initialize();
