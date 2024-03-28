@@ -1,5 +1,6 @@
 .wwebjs_cache/
 .wwebjs_auth/
+RemoteAuth*.zip
 
 # Logs
 logs

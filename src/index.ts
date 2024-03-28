@@ -23,6 +23,34 @@ const io = new Server(server, {
 import { MongoStore } from "wwebjs-mongo";
 import mongoose from "mongoose";
 
+// Models
+import Message from "./models/Message";
+import User from "./models/User";
+
+// MongoDB connection
+mongoose.connect(MONGODB_URI);
+const db = mongoose.connection;
+const store = new MongoStore({ mongoose: mongoose });
+
+db.once('open', async () => {
+    console.log('Connected to MongoDB');
+
+    // Create a change stream on the Message collection
+    const changeStream = Message.watch();
+
+    // Listen for change events
+    changeStream.on('change', (change) => {
+        console.log('Change detected:', change);
+
+        // Emit a socket event or perform any action based on the change
+    });
+});
+
+// Handle MongoDB connection errors
+db.on('error', (error) => {
+    console.error('MongoDB connection error:', error);
+});
+
 
 // WhatsApp clients map to store client instances by clientId
 const whatsappClients = new Map();
@@ -30,61 +58,88 @@ const whatsappClients = new Map();
 // Function to initialize WhatsApp client with clientId
 function initializeWhatsAppClient(clientId: any) {
 
-    mongoose.connect(MONGODB_URI).then(() => {
-        const store = new MongoStore({ mongoose: mongoose });
-        const whatsappClient = new Client({
-            authStrategy: new RemoteAuth({
-                clientId: clientId,
-                store: store,
-                backupSyncIntervalMs: 300000
-            })
-        });
-
-        whatsappClient.on('loading_screen', (percent, message) => {
-            console.log('loading whatsapp connection...', percent, message);
-        });
-    
-        whatsappClient.on('authenticated', () => {
-            console.log('client authenticated');
-        });
-    
-        whatsappClient.on('auth_failure', msg => {
-            // Fired if session restore was unsuccessful
-            console.error('authentication failure', msg);
-        });
-        
-        whatsappClient.on('qr', (qr) => {
-            qrcode.generate(qr, { small: true });
-        });
-        
-        whatsappClient.on('ready', () => {
-            console.log(`WhatsApp client (${clientId}) is ready`);
-        });
-        
-        whatsappClient.on('message', (message) => {
-            // Broadcast incoming messages to the corresponding WebSocket client
-            io.to(clientId).emit('message-received', message);
-        });
-
-        whatsappClient.on('message_create', async message => {
-            console.log("message from: " + message.from);
-            console.log("message content: " + message.body);
-        
-            // if (message.body === '!ping') {
-            //     // send back "pong" to the chat the message was sent in
-            //     client.sendMessage(message.from, 'pong');
-            // }
-            // else if (message.body === '!chats') {
-            //     const chats = await client.getChats();
-            //     client.sendMessage(message.from, `The bot has ${chats.length} chats open.`);
-            // }
-        });
-        
-        whatsappClient.initialize();
-        
-        // Store the client instance in the map
-        whatsappClients.set(clientId, whatsappClient);
+    const whatsappClient = new Client({
+        authStrategy: new RemoteAuth({
+            clientId: clientId,
+            store: store,
+            backupSyncIntervalMs: 300000
+        })
     });
+
+    whatsappClient.on('loading_screen', (percent, message) => {
+        console.log('loading whatsapp connection...', percent, message);
+    });
+
+    whatsappClient.on('authenticated', () => {
+        console.log('client authenticated');
+    });
+
+    whatsappClient.on('auth_failure', msg => {
+        // Fired if session restore was unsuccessful
+        console.error('authentication failure', msg);
+    });
+    
+    whatsappClient.on('qr', (qr) => {
+        qrcode.generate(qr, { small: true });
+    });
+    
+    whatsappClient.on('ready', () => {
+        console.log(`WhatsApp client (${clientId}) is ready`);
+    });
+    
+    whatsappClient.on('message', (message) => {
+        // Broadcast incoming messages to the corresponding WebSocket client
+        io.to(clientId).emit('message-received', message);
+    });
+
+    whatsappClient.on('message_create', async message => {
+        
+        console.log("message from: " + message.from);
+        console.log("message content: " + message.body);
+
+        const userId = message.from;
+
+        // Create a new message document
+        const newMessage = new Message(message);
+
+        // Save the message document to the collection
+        newMessage.save()
+        .then(savedMessage => {
+            console.log('Message saved successfully:', savedMessage);
+            // Perform any additional actions if needed
+        })
+        .catch(error => {
+            console.error('Error saving message:', error);
+            // Handle the error appropriately
+        });
+
+        // Find the user by userId
+        User.findOneAndUpdate(
+            { userId: userId },
+            { $push: { messages: newMessage } },
+            { upsert: true, new: true }
+        )
+        .then((user) => {
+            console.log('Message saved successfully for user:', user);
+        })
+        .catch((error) => {
+            console.error('Error saving message for user:', error);
+        });
+    
+        // if (message.body === '!ping') {
+        //     // send back "pong" to the chat the message was sent in
+        //     client.sendMessage(message.from, 'pong');
+        // }
+        // else if (message.body === '!chats') {
+        //     const chats = await client.getChats();
+        //     client.sendMessage(message.from, `The bot has ${chats.length} chats open.`);
+        // }
+    });
+    
+    whatsappClient.initialize();
+    
+    // Store the client instance in the map
+    whatsappClients.set(clientId, whatsappClient);
 
 }
 
