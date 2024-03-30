@@ -6,12 +6,18 @@ import qrcode from "qrcode-terminal";
 import cors from "cors";
 import dotenv from "dotenv";
 
+// API
+import chats from './api/chats';
+
 dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'client_01';
 
 const app: Express = express();
+
 app.use(cors());
+app.use('/chats', chats);
+
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
