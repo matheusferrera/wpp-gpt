@@ -3,6 +3,7 @@ import { messageSchema } from './Message';
 
 const userSchema: Schema = new Schema({
     userId: { type: String, required: true, unique: true },
+    clientId: { type: String, required: true, unique: false },
     messages: [messageSchema], // Nested array of messages
 });
 

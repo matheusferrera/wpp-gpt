@@ -121,7 +121,7 @@ function initializeWhatsAppClient(clientId: any) {
 
         // Find the user by userId
         User.findOneAndUpdate(
-            { userId: userId },
+            { userId: userId, clientId: clientId },
             { $push: { messages: newMessage } },
             { upsert: true, new: true }
         )
