@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 
 // API
 import chats from './api/chats';
+import clients from './api/clients';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const app: Express = express();
 
 app.use(cors());
 app.use('/chats', chats);
+app.use('/clients', clients);
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -32,6 +34,7 @@ import mongoose from "mongoose";
 // Models
 import Message from "./models/Message";
 import User from "./models/User";
+import ClientModel from "./models/Client";
 
 // MongoDB connection
 mongoose.connect(MONGODB_URI);
@@ -40,6 +43,14 @@ const store = new MongoStore({ mongoose: mongoose });
 
 db.once('open', async () => {
     console.log('Connected to MongoDB');
+
+    // Get all clients from DB
+    // const clients = await ClientModel.find();
+
+    // // Initialize all WhatsApp clients
+    // clients.forEach((client) => {
+    //     initializeWhatsAppClient(client['clientId']);
+    // });
 
     // Create a change stream on the Message collection
     const changeStream = Message.watch();
