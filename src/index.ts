@@ -95,6 +95,17 @@ function initializeWhatsAppClient(clientId: any) {
 
     whatsappClient.on('authenticated', () => {
         console.log('client authenticated');
+        // Find the user by userId
+        ClientModel.findOneAndUpdate(
+            { clientId: clientId  },
+            { upsert: true, new: true }
+        )
+        .then((client) => {
+            console.log('New client saved successfully:', clientId);
+        })
+        .catch((error) => {
+            console.error('Error saving new client:', error);
+        });
     });
 
     whatsappClient.on('auth_failure', msg => {
