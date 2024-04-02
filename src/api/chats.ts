@@ -12,6 +12,17 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
+// GET /chats/{clientId}
+router.get('/:clientId', async (req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const user = await UserModel.find({ clientId: clientId });
+        res.send(user);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+});
+
 // GET /chats/{clientId}/{userId}
 router.get('/:clientId/:userId', async (req: Request, res: Response) => {
     try {
