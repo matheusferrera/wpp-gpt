@@ -45,12 +45,18 @@ db.once('open', async () => {
     console.log('Connected to MongoDB');
 
     // Get all clients from DB
-    // const clients = await ClientModel.find();
+    const savedClients = await ClientModel.find();
 
-    // // Initialize all WhatsApp clients
-    // clients.forEach((client) => {
-    //     initializeWhatsAppClient(client['clientId']);
-    // });
+    // Initialize all WhatsApp clients
+    savedClients.forEach((client) => {
+        console.log("saved client found: ");
+        console.log(client);
+        const clientId = client["clientId"];
+        // // Initialize WhatsApp client if not already initialized
+        // if (!whatsappClients.has(clientId)) {
+        //     initializeWhatsAppClient(clientId);
+        // }
+    });
 
     // Create a change stream on the Message collection
     const changeStream = Message.watch();
