@@ -29,3 +29,14 @@ Start the server
   npm run dev
 ```
 
+## Local Patch
+
+Go to `node_modules/whatsapp-web.js/src/util/Constants.js` and make sure you have the following under `exports.DefaultOptions`:
+
+```javascript
+webVersion: '2.2411.2',
+webVersionCache: {
+  type: 'remote',
+  remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2410.1.html',
+},
+```
