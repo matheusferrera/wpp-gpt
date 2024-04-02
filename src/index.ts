@@ -52,10 +52,10 @@ db.once('open', async () => {
         console.log("saved client found: ");
         console.log(client);
         const clientId = client["clientId"];
-        // // Initialize WhatsApp client if not already initialized
-        // if (!whatsappClients.has(clientId)) {
-        //     initializeWhatsAppClient(clientId);
-        // }
+        // Initialize WhatsApp client if not already initialized
+        if (!whatsappClients.has(clientId)) {
+            initializeWhatsAppClient(clientId);
+        }
     });
 
     // Create a change stream on the Message collection
@@ -103,7 +103,15 @@ function initializeWhatsAppClient(clientId: any) {
     });
     
     whatsappClient.on('qr', (qr) => {
-        qrcode.generate(qr, { small: true });
+        // qrcode.generate(qr, { small: true });
+        console.log("Generated QRCode for " + clientId);
+        app.get(`/qrcode/${clientId}`, async (req: Request, res: Response) => {
+            try {
+                res.send({"code": qr});
+            } catch (e: any) {
+                res.status(500).send(e.toString());
+            }
+        });
     });
     
     whatsappClient.on('ready', () => {
