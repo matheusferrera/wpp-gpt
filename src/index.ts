@@ -5,17 +5,57 @@ import { Client, RemoteAuth } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 import cors from "cors";
 import dotenv from "dotenv";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 
-// API
+// API files
 import chats from './api/chats';
 import clients from './api/clients';
 
+// Environment variables configuration
 dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'client_01';
 
 const app: Express = express();
 
+// Swagger UI configuration
+const options = {
+    definition: {
+      openapi: "3.1.0",
+      info: {
+        title: "WhatsApp Automation API",
+        version: "0.1.0",
+        description:
+          "This is a WhatsApp Automation API made with Express and documented with Swagger",
+        license: {
+          name: "MIT",
+          url: "https://spdx.org/licenses/MIT.html",
+        },
+        contact: {
+          name: "Matheus Ferreira",
+          url: "https://matheusferrera.com",
+          email: "info@email.com",
+        },
+      },
+      servers: [
+        {
+          url: "http://localhost:3000",
+        },
+      ],
+    },
+    apis: ["./api/*.ts"],
+};
+
+// Swagger UI route
+const specs = swaggerJsdoc(options);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs)
+);
+
+// API Routes
 app.use(cors());
 app.use('/chats', chats);
 app.use('/clients', clients);
@@ -31,7 +71,7 @@ const io = new Server(server, {
 import { MongoStore } from "wwebjs-mongo";
 import mongoose from "mongoose";
 
-// Models
+// MongoDB Models
 import Message from "./models/Message";
 import User from "./models/User";
 import ClientModel from "./models/Client";
@@ -40,6 +80,7 @@ import ClientModel from "./models/Client";
 mongoose.connect(MONGODB_URI);
 const db = mongoose.connection;
 const store = new MongoStore({ mongoose: mongoose });
+
 
 db.once('open', async () => {
     console.log('Connected to MongoDB');
