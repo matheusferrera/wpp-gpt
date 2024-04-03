@@ -24,4 +24,15 @@ router.get('/:clientId', async (req: Request, res: Response) => {
     }
 });
 
+// POST /clients
+router.post('/', async (req: Request, res: Response) => {
+    try {
+        const clientId = req.body.clientId;
+        const client = await ClientModel.findOneAndUpdate({ clientId: clientId }, { upsert: true, new: true });
+        res.send(client);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+});
+
 export default router;
