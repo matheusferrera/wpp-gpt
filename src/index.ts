@@ -141,41 +141,44 @@ function initializeWhatsAppClient(clientId: any) {
 
         const userId = message.from;
 
-        // Create a new message document
-        const newMessage = new Message(message);
+        // Ignore status messages
+        if(userId !== "status@broadcast") {
+            // Create a new message document
+            const newMessage = new Message(message);
 
-        // Save the message document to the collection
-        newMessage.save()
-        .then(savedMessage => {
-            console.log('Message saved successfully:', savedMessage);
-            // Perform any additional actions if needed
-        })
-        .catch(error => {
-            console.error('Error saving message:', error);
-            // Handle the error appropriately
-        });
+            // Save the message document to the collection
+            newMessage.save()
+            .then(savedMessage => {
+                console.log('Message saved successfully:', savedMessage);
+                // Perform any additional actions if needed
+            })
+            .catch(error => {
+                console.error('Error saving message:', error);
+                // Handle the error appropriately
+            });
 
-        // Find the user by userId
-        User.findOneAndUpdate(
-            { userId: userId, clientId: clientId },
-            { $push: { messages: newMessage } },
-            { upsert: true, new: true }
-        )
-        .then((user) => {
-            console.log('Message saved successfully for user:', user);
-        })
-        .catch((error) => {
-            console.error('Error saving message for user:', error);
-        });
-    
-        // if (message.body === '!ping') {
-        //     // send back "pong" to the chat the message was sent in
-        //     client.sendMessage(message.from, 'pong');
-        // }
-        // else if (message.body === '!chats') {
-        //     const chats = await client.getChats();
-        //     client.sendMessage(message.from, `The bot has ${chats.length} chats open.`);
-        // }
+            // Find the user by userId
+            User.findOneAndUpdate(
+                { userId: userId, clientId: clientId },
+                { $push: { messages: newMessage } },
+                { upsert: true, new: true }
+            )
+            .then((user) => {
+                console.log('Message saved successfully for user:', user);
+            })
+            .catch((error) => {
+                console.error('Error saving message for user:', error);
+            });
+        
+            // if (message.body === '!ping') {
+            //     // send back "pong" to the chat the message was sent in
+            //     client.sendMessage(message.from, 'pong');
+            // }
+            // else if (message.body === '!chats') {
+            //     const chats = await client.getChats();
+            //     client.sendMessage(message.from, `The bot has ${chats.length} chats open.`);
+            // }
+        }
     });
     
     whatsappClient.initialize();
