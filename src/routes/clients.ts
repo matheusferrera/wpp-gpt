@@ -1,3 +1,28 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Client:
+ *       type: object
+ *       required:
+ *         - id
+ *         - clientId
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id of the client for MongoDB
+ *         clientId:
+ *           type: string
+ *           description: The ID of your client
+ *         name:
+ *           type: string
+ *           description: The client name
+ *       example:
+ *         id: d5fE_asz
+ *         clientId: client_01
+ *         name: Loja 1
+ */
+
 import express, { Router, Request, Response } from "express";
 import ClientModel from "../models/Client";
 

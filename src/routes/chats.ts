@@ -1,3 +1,33 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - id
+ *         - userId
+ *         - clientId
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id of the client for MongoDB
+ *         userId:
+ *           type: string
+ *           description: The ID of your user
+ *         clientId:
+ *           type: string
+ *           description: The ID of your client
+ *         messages:
+ *           type: array
+ *           description: The user messages for that client
+ *       example:
+ *         id: d5fE_asz
+ *         userId: +5561987665432@us.g
+ *         clientId: client_01
+ *         messages: Hello, world!
+ */
+
 import express, { Router, Request, Response } from "express";
 import UserModel from "../models/User";
 

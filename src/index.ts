@@ -9,8 +9,8 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
 // API files
-import chats from './api/chats';
-import clients from './api/clients';
+import chats from './routes/chats';
+import clients from './routes/clients';
 
 // Environment variables configuration
 dotenv.config();
@@ -44,7 +44,7 @@ const options = {
         },
       ],
     },
-    apis: ["./api/*.ts"],
+    apis: ["**/routes/*.ts"],
 };
 
 // Swagger UI route
