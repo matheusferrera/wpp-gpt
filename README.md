@@ -40,3 +40,7 @@ webVersionCache: {
   remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2410.1.html',
 },
 ```
+
+## API Reference
+
+A Swagger-UI page is hosted at `localhost:3000/api-docs` for the API endpoints.
