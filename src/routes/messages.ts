@@ -133,12 +133,127 @@
  *         vCards: []
  */
 
+
+/**
+ * @swagger
+ * tags:
+ *   name: Messages
+ *   description: The messages
+ * /messages:
+ *   get:
+ *     summary: Lists all the messages
+ *     tags: [Messages]
+ *     responses:
+ *       200:
+ *         description: The list of the saved messages
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Message'
+ *   post:
+ *     summary: Create a new message
+ *     tags: [Messages]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Message'
+ *     responses:
+ *       200:
+ *         description: The created message.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       500:
+ *         description: Some server error
+ * /messages/{clientId}:
+ *   get:
+ *     summary: Get the clients' messages
+ *     tags: [Messages]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The client id
+ *     responses:
+ *       200:
+ *         description: The client response by id
+ *         contens:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       404:
+ *         description: The message was not found
+ *   delete:
+ *     summary: Remove all the client's messages
+ *     tags: [Messages]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The client id
+ *     responses:
+ *       200:
+ *         description: The message was deleted
+ *       404:
+ *         description: The message was not found
+ * /messages/{clientId}/{userId}:
+ *   get:
+ *     summary: Get the all the messages from a user to a client
+ *     tags: [Messages]
+ *     parameters:
+ *       - in: path
+ *         name: clientId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The client id
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user id
+ *     responses:
+ *       200:
+ *         description: The messages for a user to a client
+ *         contens:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Message'
+ *       404:
+ *         description: Messages not found
+ *   delete:
+ *     summary: Remove all the client's messages
+ *     tags: [Messages]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The client id
+ *     responses:
+ *       200:
+ *         description: The message was deleted
+ *       404:
+ *         description: The message was not found
+ */
+
 import express, { Router, Request, Response } from "express";
 import UserModel from "../models/User";
 
 const router: Router = express.Router();
 
-// GET /chats/test
+// GET /messages/test
 router.get('/', async (req: Request, res: Response) => {
     try {
         res.send('OK');
@@ -147,7 +262,7 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
-// GET /chats/{clientId}
+// GET /messages/{clientId}
 router.get('/:clientId', async (req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
@@ -158,7 +273,7 @@ router.get('/:clientId', async (req: Request, res: Response) => {
     }
 });
 
-// GET /chats/{clientId}/{userId}
+// GET /messages/{clientId}/{userId}
 router.get('/:clientId/:userId', async (req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;

@@ -9,7 +9,7 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
 // API files
-import chats from './routes/chats';
+import messages from './routes/messages';
 import clients from './routes/clients';
 
 // Environment variables configuration
@@ -57,7 +57,7 @@ app.use(
 
 // API Routes
 app.use(cors());
-app.use('/chats', chats);
+app.use('/messages', messages);
 app.use('/clients', clients);
 
 const server = http.createServer(app);
