@@ -273,6 +273,17 @@ router.get('/:clientId', async (req: Request, res: Response) => {
     }
 });
 
+// DELETE /messages/{clientId}
+router.delete('/:clientId', async (req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        await UserModel.updateMany({ clientId: clientId }, { messages: [] });
+        res.send({"detail": "messages deleted"});
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+});
+
 // GET /messages/{clientId}/{userId}
 router.get('/:clientId/:userId', async (req: Request, res: Response) => {
     try {
@@ -280,6 +291,18 @@ router.get('/:clientId/:userId', async (req: Request, res: Response) => {
         const userId = req.params.userId;
         const user = await UserModel.findOne({ clientId: clientId, userId: userId });
         res.send(user);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+});
+
+// DELETE /messages/{clientId}/{userId}
+router.delete('/:clientId/:userId', async (req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const userId = req.params.userId;
+        await UserModel.updateMany({ clientId: clientId, userId: userId }, { messages: [] });
+        res.send({"detail": "messages deleted"});
     } catch (e: any) {
         res.status(500).send(e.toString());
     }
