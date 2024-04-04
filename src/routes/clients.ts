@@ -143,8 +143,30 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:clientId', async (req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
-        const user = await ClientModel.find({ clientId: clientId });
-        res.send(user);
+        const client = await ClientModel.find({ clientId: clientId });
+        res.send(client);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+});
+
+// PUT /clients/{clientId}
+router.put('/:clientId', async (req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const client = await ClientModel.findOneAndUpdate({ clientId: clientId }, { upsert: true, new: true });
+        res.send(client);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+});
+
+// DELETE /clients/{clientId}
+router.delete('/:clientId', async (req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        await ClientModel.deleteOne({ clientId: clientId });
+        res.send({"detail": "client deleted"});
     } catch (e: any) {
         res.status(500).send(e.toString());
     }
