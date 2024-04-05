@@ -26,6 +26,26 @@
  *         userId: +5561987665432@us.g
  *         clientId: client_01
  *         messages: Hello, world!
+ *     MessageRequestBody:
+ *       type: object
+ *       required:
+ *         - clientId
+ *         - userId
+ *         - message
+ *       properties:
+ *         clientId:
+ *           type: string
+ *           description: The ID of the WhatsApp client
+ *         userId:
+ *           type: string
+ *           description: The ID of the user (recipient of the message)
+ *         message:
+ *           type: string
+ *           description: The text message to be sent
+ *       example:
+ *         clientId: client_01
+ *         userId: +5561987665432@us.g
+ *         message: Hello!
  *     Message:
  *       type: object
  *       required:
@@ -187,7 +207,7 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Message'
+ *             $ref: '#/components/schemas/MessageRequestBody'
  *     responses:
  *       200:
  *         description: The created message.
