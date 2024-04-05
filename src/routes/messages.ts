@@ -277,13 +277,28 @@
 
 import express, { Router, Request, Response } from "express";
 import UserModel from "../models/User";
+import { whatsappClients } from "..";
 
 const router: Router = express.Router();
 
-// GET /messages/test
+// GET /messages
 router.get('/', async (req: Request, res: Response) => {
     try {
         res.send('OK');
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+});
+
+// POST /messages
+router.post('/', async (req: Request, res: Response) => {
+    try {
+        const clientId = req.body.clientId;
+        const userId = req.body.userId;
+        const message = req.body.message;
+        const whatsapp = whatsappClients.get(clientId);
+        await whatsapp.sendMessage(userId, message);
+        res.send({"detail": "message sent"});
     } catch (e: any) {
         res.status(500).send(e.toString());
     }

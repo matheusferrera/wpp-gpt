@@ -57,6 +57,7 @@ app.use(
 
 // API Routes
 app.use(cors());
+app.use(express.json());
 app.use('/messages', messages);
 app.use('/clients', clients);
 
@@ -117,7 +118,7 @@ db.on('error', (error) => {
 
 
 // WhatsApp clients map to store client instances by clientId
-const whatsappClients = new Map();
+export const whatsappClients = new Map();
 
 // Function to initialize WhatsApp client with clientId
 function initializeWhatsAppClient(clientId: any) {
