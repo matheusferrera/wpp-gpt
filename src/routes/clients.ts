@@ -27,7 +27,7 @@
  * @swagger
  * tags:
  *   name: Clients
- *   description: The clients
+ *   description: Operations with clients (partners of the marketplace)
  * /clients:
  *   get:
  *     summary: Lists all the clients

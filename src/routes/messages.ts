@@ -137,8 +137,35 @@
 /**
  * @swagger
  * tags:
- *   name: Messages
- *   description: The messages
+ *   - name: Messages
+ *     description: Operations with chat messages
+ *   - name: QRCode
+ *     description: QRCode generation for login and synchronization
+ * /qrcode/{clientId}:
+ *   get:
+ *     summary: Generate QRCode text (string) for a given clientId
+ *     tags: [QRCode]
+ *     parameters:
+ *       - in: path
+ *         name: clientId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The client id
+ *     responses:
+ *       200:
+ *         description: The QRCode text
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               items:
+ *                 properties:
+ *                   code:
+ *                     type: string
+ *                     description: QRCode string
+ *               example:
+ *                 code: xxxxxxxxxxxxxxxxx
  * /messages:
  *   get:
  *     summary: Lists all the messages
