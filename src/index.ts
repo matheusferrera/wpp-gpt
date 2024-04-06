@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { Client, RemoteAuth } from "whatsapp-web.js";
+import { Client, LocalAuth } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -9,63 +9,67 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
 // API files
-import messages from './routes/messages';
-import clients from './routes/clients';
+import messages from "./routes/messages";
+import clients from "./routes/clients";
 
 // Environment variables configuration
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'client_01';
+const MONGODB_URI = process.env.MONGODB_URI || "client_01";
+
+//=======================================================================================
+//===================================> API config <======================================
+//=======================================================================================
 
 const app: Express = express();
 
 // Swagger UI configuration
 const options = {
-    definition: {
-      openapi: "3.1.0",
-      info: {
-        title: "WhatsApp Automation API",
-        version: "0.1.0",
-        description:
-          "This is a WhatsApp Automation API made with Express and documented with Swagger",
-        license: {
-          name: "MIT",
-          url: "https://spdx.org/licenses/MIT.html",
-        },
-        contact: {
-          name: "Matheus Ferreira",
-          url: "https://matheusferrera.com",
-          email: "info@email.com",
-        },
+  definition: {
+    openapi: "3.1.0",
+    info: {
+      title: "WhatsApp Automation API",
+      version: "0.1.0",
+      description:
+        "This is a WhatsApp Automation API made with Express and documented with Swagger",
+      license: {
+        name: "MIT",
+        url: "https://spdx.org/licenses/MIT.html",
       },
-      servers: [
-        {
-          url: "http://localhost:3000",
-        },
-      ],
+      contact: {
+        name: "Matheus Ferreira",
+        url: "https://matheusferrera.com",
+        email: "info@email.com",
+      },
     },
-    apis: ["**/routes/*.ts"],
+    servers: [
+      {
+        url: "http://localhost:3000",
+      },
+    ],
+  },
+  apis: ["**/swagger/*.yaml"],
 };
 
 // Swagger UI route
 const specs = swaggerJsdoc(options);
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs)
-);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // API Routes
 app.use(cors());
 app.use(express.json());
-app.use('/messages', messages);
-app.use('/clients', clients);
+app.use("/messages", messages);
+app.use("/clients", clients);
+
+//=======================================================================================
+//================================> Data base config <===================================
+//=======================================================================================
 
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-      origin: '*',
-    }
+  cors: {
+    origin: "*",
+  },
 });
 
 // Require database
@@ -82,180 +86,163 @@ mongoose.connect(MONGODB_URI);
 const db = mongoose.connection;
 const store = new MongoStore({ mongoose: mongoose });
 
+db.once("open", async () => {
+  console.log("Connected to MongoDB");
 
-db.once('open', async () => {
-    console.log('Connected to MongoDB');
+  // Create a change stream on the Message collection
+  const changeStream = Message.watch();
 
-    // Get all clients from DB
-    const savedClients = await ClientModel.find();
+  // Get all clients from DB
+  const savedClients = await ClientModel.find();
 
-    // Initialize all WhatsApp clients
-    savedClients.forEach((client) => {
-        console.log("saved client found: ");
-        console.log(client);
-        const clientId = client["clientId"];
-        // Initialize WhatsApp client if not already initialized
-        if (!whatsappClients.has(clientId)) {
-            initializeWhatsAppClient(clientId);
-        }
-    });
+  //Initialize all WhatsApp clients
+  savedClients.forEach((client) => {
+    const clientId = client["clientId"];
+    console.log(`[initializeClientFunction] => Initializing client - ${client["clientId"]}`)
+    // Initialize WhatsApp client if not already initialized
+    if (!whatsappClients.has(clientId)) {
+      initializeWhatsAppClient(clientId);
+    }
+  });
 
-    // Create a change stream on the Message collection
-    const changeStream = Message.watch();
+  // Listen for change events
+  changeStream.on("change", (change) => {
+    // console.log("Change detected:", change);
 
-    // Listen for change events
-    changeStream.on('change', (change) => {
-        console.log('Change detected:', change);
-
-        // Emit a socket event or perform any action based on the change
-    });
+    // Emit a socket event or perform any action based on the change
+  });
 });
 
 // Handle MongoDB connection errors
-db.on('error', (error) => {
-    console.error('MongoDB connection error:', error);
+db.on("error", (error) => {
+  console.error("MongoDB connection error:", error);
 });
 
+//========================================================================================
+//================================>  Whatsapp config  <===================================
+//========================================================================================
 
 // WhatsApp clients map to store client instances by clientId
 export const whatsappClients = new Map();
 
 // Function to initialize WhatsApp client with clientId
 function initializeWhatsAppClient(clientId: any) {
+  const whatsappClient = new Client({
+    authStrategy: new LocalAuth({
+      dataPath: clientId,
+    }),
+  });
 
-    const whatsappClient = new Client({
-        authStrategy: new RemoteAuth({
-            clientId: clientId,
-            store: store,
-            backupSyncIntervalMs: 300000
-        })
-    });
+  whatsappClient.on("loading_screen", (percent, message) => {
+    console.log(`[initializeWhatsAppClient] => Loading whatsapp connection ${percent}% - ${clientId}`)
+  });
 
-    whatsappClient.on('loading_screen', (percent, message) => {
-        console.log('loading whatsapp connection...', percent, message);
-    });
+  whatsappClient.on("authenticated", () => {
+    console.log(`[initializeWhatsAppClient] => Client authenticated - ${clientId}`)
+  });
 
-    whatsappClient.on('authenticated', () => {
-        console.log('client authenticated');
-        // Find the user by userId
-        ClientModel.findOneAndUpdate(
-            { clientId: clientId  },
-            { upsert: true, new: true }
-        )
-        .then((client) => {
-            console.log('New client saved successfully:', clientId);
+  whatsappClient.on("auth_failure", (msg) => {
+    console.log(`[initializeWhatsAppClient] => Auth_failure - ${clientId}`)
+  });
+
+  whatsappClient.on("qr", (qr) => {
+    console.log(`[initializeWhatsAppClient] => Generated qr-code - ${clientId}`)
+    qrcode.generate(qr, { small: true });
+    console.log(qr)
+  });
+
+  whatsappClient.on("ready", () => {
+    console.log(`[initializeWhatsAppClient] => Client is READY!! - ${clientId}`)
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+  whatsappClient.on("message", (message) => {
+    console.log(`[snifferWhatsAppClient] => Recive message - ${clientId}`)
+    // Broadcast incoming messages to the corresponding WebSocket client
+    io.to(clientId).emit("message-received", message);
+  });
+
+  whatsappClient.on("message_create", async (message) => {
+    console.log(`[snifferWhatsAppClient] => Send message - ${clientId}`)
+
+    const userId = message.from;
+
+    // Ignore status messages
+    if (userId !== "status@broadcast") {
+      // Create a new message document
+      const newMessage = new Message(message);
+
+      // Save the message document to the collection
+      newMessage
+        .save()
+        .then((savedMessage) => {
+          // console.log("Message saved successfully:", savedMessage);
+          // Perform any additional actions if needed
         })
         .catch((error) => {
-            console.error('Error saving new client:', error);
+          // console.error("Error saving message:", error);
+          // Handle the error appropriately
         });
-    });
 
-    whatsappClient.on('auth_failure', msg => {
-        // Fired if session restore was unsuccessful
-        console.error('authentication failure', msg);
-    });
-    
-    whatsappClient.on('qr', (qr) => {
-        // qrcode.generate(qr, { small: true });
-        console.log("Generated QRCode for " + clientId);
-        app.get(`/qrcode/${clientId}`, async (req: Request, res: Response) => {
-            try {
-                res.send({"code": qr});
-            } catch (e: any) {
-                res.status(500).send(e.toString());
-            }
+      // Find the user by userId
+      User.findOneAndUpdate(
+        { userId: userId, clientId: clientId },
+        { $push: { messages: newMessage } },
+        { upsert: true, new: true }
+      )
+        .then((user) => {
+          // console.log("Message saved successfully for user:", user);
+        })
+        .catch((error) => {
+          console.error("Error saving message for user:", error);
         });
-    });
-    
-    whatsappClient.on('ready', () => {
-        console.log(`WhatsApp client (${clientId}) is ready`);
-    });
-    
-    whatsappClient.on('message', (message) => {
-        // Broadcast incoming messages to the corresponding WebSocket client
-        io.to(clientId).emit('message-received', message);
-    });
 
-    whatsappClient.on('message_create', async message => {
-        
-        console.log("message from: " + message.from);
-        console.log("message content: " + message.body);
+    }
+  });
 
-        const userId = message.from;
+  whatsappClient.initialize();
 
-        // Ignore status messages
-        if(userId !== "status@broadcast") {
-            // Create a new message document
-            const newMessage = new Message(message);
-
-            // Save the message document to the collection
-            newMessage.save()
-            .then(savedMessage => {
-                console.log('Message saved successfully:', savedMessage);
-                // Perform any additional actions if needed
-            })
-            .catch(error => {
-                console.error('Error saving message:', error);
-                // Handle the error appropriately
-            });
-
-            // Find the user by userId
-            User.findOneAndUpdate(
-                { userId: userId, clientId: clientId },
-                { $push: { messages: newMessage } },
-                { upsert: true, new: true }
-            )
-            .then((user) => {
-                console.log('Message saved successfully for user:', user);
-            })
-            .catch((error) => {
-                console.error('Error saving message for user:', error);
-            });
-        
-            // if (message.body === '!ping') {
-            //     // send back "pong" to the chat the message was sent in
-            //     client.sendMessage(message.from, 'pong');
-            // }
-            // else if (message.body === '!chats') {
-            //     const chats = await client.getChats();
-            //     client.sendMessage(message.from, `The bot has ${chats.length} chats open.`);
-            // }
-        }
-    });
-    
-    whatsappClient.initialize();
-    
-    // Store the client instance in the map
-    whatsappClients.set(clientId, whatsappClient);
-
+  // Store the client instance in the map
+  whatsappClients.set(clientId, whatsappClient);
 }
 
 // WebSocket connection event
-io.on('connection', (socket) => {
-    console.log('A client connected');
+io.on("connection", (socket) => {
+  console.log("A client connected");
 
-    // Receive client ID from the client
-    const clientId = socket.handshake.query.clientId;
+  // Receive client ID from the client
+  const clientId = socket.handshake.query.clientId;
 
-    // Check existence of received clientId query
-    if(clientId && typeof clientId !== "undefined") {
-        // Join the room corresponding to the client ID
-        socket.join(clientId);
+  // Check existence of received clientId query
+  if (clientId && typeof clientId !== "undefined") {
+    // Join the room corresponding to the client ID
+    socket.join(clientId);
 
-        // Initialize WhatsApp client if not already initialized
-        if (!whatsappClients.has(clientId)) {
-            initializeWhatsAppClient(clientId);
-        }
+    // Initialize WhatsApp client if not already initialized
+    if (!whatsappClients.has(clientId)) {
+      initializeWhatsAppClient(clientId);
     }
+  }
 
-    // Handle disconnection
-    socket.on('disconnect', () => {
-        console.log('A client disconnected');
-    });
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    console.log("A client disconnected");
+  });
 });
 
 // Start the server
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });

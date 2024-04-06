@@ -31,6 +31,17 @@ const changeClients = async(req: Request, res: Response) => {
     }
 }
 
+const activeClients = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const response = await ClientService.activeClients(clientId);
+        console.log("CONTROLLER -> ", response)
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
 const deleteClients = async(req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
@@ -46,7 +57,8 @@ const ClientController = {
     getClients,
     createClients,
     changeClients,
-    deleteClients
+    deleteClients,
+    activeClients
 }
 
 export default ClientController;
