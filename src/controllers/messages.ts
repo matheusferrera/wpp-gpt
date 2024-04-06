@@ -3,7 +3,7 @@ import MessageService from "../services/messages";
 
 const getMessages = async(req: Request, res: Response) => {
     try {
-        const clientId = req.params.clientId
+        const clientId = req.params.clientId;
         const userId = req.params.userId;
         const response = await MessageService.getMessages(clientId, userId);
         res.send(response);
@@ -12,12 +12,23 @@ const getMessages = async(req: Request, res: Response) => {
     }
 }
 
+const createMessages = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.body.clientId;
+        const userId = req.body.userId;
+        const message = req.body.message;
+        const response = await MessageService.createMessages(clientId, userId, message);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
 
 const deleteMessages = async(req: Request, res: Response) => {
     try {
-        const clientId = req.params.clientId
-        const userId = req.params.userId
-        console.log("DETE -> ", clientId)
+        const clientId = req.params.clientId;
+        const userId = req.params.userId;
+        console.log("DETE -> ", clientId);
         const response = await MessageService.deleteMessages(clientId, userId);
         res.send(response);
     } catch (e: any) {
@@ -27,6 +38,7 @@ const deleteMessages = async(req: Request, res: Response) => {
 
 const MessageController = {
     getMessages,
+    createMessages,
     deleteMessages
 }
 

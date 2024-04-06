@@ -296,78 +296,25 @@
  */
 
 import express, { Router, Request, Response } from "express";
-import UserModel from "../models/User";
-import { whatsappClients } from "..";
+import MessageController from "../controllers/messages";
 
 const router: Router = express.Router();
 
-// GET /messages
-router.get('/', async (req: Request, res: Response) => {
-    try {
-        res.send('OK');
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
-
-// POST /messages
-router.post('/', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.body.clientId;
-        const userId = req.body.userId;
-        const message = req.body.message;
-        const whatsapp = whatsappClients.get(clientId);
-        await whatsapp.sendMessage(userId, message);
-        res.send({"detail": "message sent"});
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
 
 // GET /messages/{clientId}
-router.get('/:clientId', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        const user = await UserModel.find({ clientId: clientId });
-        res.send(user);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
-
-// DELETE /messages/{clientId}
-router.delete('/:clientId', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        await UserModel.updateMany({ clientId: clientId }, { messages: [] });
-        res.send({"detail": "messages deleted"});
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
+router.get('/:clientId', MessageController.getMessages);
 
 // GET /messages/{clientId}/{userId}
-router.get('/:clientId/:userId', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        const userId = req.params.userId;
-        const user = await UserModel.findOne({ clientId: clientId, userId: userId });
-        res.send(user);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
+router.get('/:clientId/:userId', MessageController.getMessages);
+
+// POST /messages
+router.post('/', MessageController.createMessages);
+
+// DELETE /messages/{clientId}
+router.delete('/:clientId', MessageController.deleteMessages);
 
 // DELETE /messages/{clientId}/{userId}
-router.delete('/:clientId/:userId', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        const userId = req.params.userId;
-        await UserModel.updateMany({ clientId: clientId, userId: userId }, { messages: [] });
-        res.send({"detail": "messages deleted"});
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
+router.delete('/:clientId/:userId', MessageController.deleteMessages);
+
 
 export default router;

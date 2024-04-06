@@ -125,62 +125,25 @@
  */
 
 import express, { Router, Request, Response } from "express";
-import ClientModel from "../models/Client";
+import ClientController from "../controllers/clients";
 
 const router: Router = express.Router();
 
+
 // GET /clients
-router.get('/', async (req: Request, res: Response) => {
-    try {
-        const clients = await ClientModel.find();
-        res.send(clients);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
-
-// GET /clients/{clientId}
-router.get('/:clientId', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        const client = await ClientModel.find({ clientId: clientId });
-        res.send(client);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
-
-// PUT /clients/{clientId}
-router.put('/:clientId', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        const client = await ClientModel.findOneAndUpdate({ clientId: clientId }, { upsert: true, new: true });
-        res.send(client);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
-
-// DELETE /clients/{clientId}
-router.delete('/:clientId', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        await ClientModel.deleteOne({ clientId: clientId });
-        res.send({"detail": "client deleted"});
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
+router.get('/', ClientController.getClients);
 
 // POST /clients
-router.post('/', async (req: Request, res: Response) => {
-    try {
-        const clientId = req.body.clientId;
-        const client = await ClientModel.findOneAndUpdate({ clientId: clientId }, { upsert: true, new: true });
-        res.send(client);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-});
+router.post('/', ClientController.createClients);
+
+// GET /clients/{clientId}
+router.get('/:clientId', ClientController.getClients);
+
+// PUT /clients/{clientId}
+router.put('/:clientId', ClientController.changeClients);
+
+// DELETE /clients/{clientId}
+router.delete('/:clientId', ClientController.deleteClients);
+
 
 export default router;
