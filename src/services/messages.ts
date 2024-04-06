@@ -20,11 +20,11 @@ const getMessages = async (clientId: string, userId: string) => {
     }
 }
 
-const createMessages = async (clientId: string, userId: string, message: string, media?: string) => {
+const createMessages = async (clientId: string, userId: string, message: string, mimeType?: string, media?: string) => {
     try {
         let response;
-        if(media) {
-            const messageMedia = new MessageMedia("image/jpeg", media);
+        if(mimeType && media) {
+            const messageMedia = new MessageMedia(mimeType, media);
             const whatsapp = whatsappClients.get(clientId);
             await whatsapp.sendMessage(userId, messageMedia);
             response = {"detail": "message sent"};
