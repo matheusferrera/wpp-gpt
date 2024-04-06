@@ -17,7 +17,8 @@ const createMessages = async(req: Request, res: Response) => {
         const clientId = req.body.clientId;
         const userId = req.body.userId;
         const message = req.body.message;
-        const response = await MessageService.createMessages(clientId, userId, message);
+        const media = req.body.media;
+        const response = await MessageService.createMessages(clientId, userId, message, media);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());

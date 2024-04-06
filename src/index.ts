@@ -57,7 +57,8 @@ app.use(
 
 // API Routes
 app.use(cors());
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb'}));
 app.use('/messages', messages);
 app.use('/clients', clients);
 
@@ -105,7 +106,7 @@ db.once('open', async () => {
 
     // Listen for change events
     changeStream.on('change', (change) => {
-        console.log('Change detected:', change);
+        // console.log('Change detected:', change);
 
         // Emit a socket event or perform any action based on the change
     });
@@ -191,7 +192,7 @@ function initializeWhatsAppClient(clientId: any) {
             // Save the message document to the collection
             newMessage.save()
             .then(savedMessage => {
-                console.log('Message saved successfully:', savedMessage);
+                // console.log('Message saved successfully:', savedMessage);
                 // Perform any additional actions if needed
             })
             .catch(error => {
@@ -206,7 +207,7 @@ function initializeWhatsAppClient(clientId: any) {
                 { upsert: true, new: true }
             )
             .then((user) => {
-                console.log('Message saved successfully for user:', user);
+                // console.log('Message saved successfully for user:', user);
             })
             .catch((error) => {
                 console.error('Error saving message for user:', error);

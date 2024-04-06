@@ -1,5 +1,5 @@
-
 import UserModel from "../models/User";
+import { MessageMedia } from "whatsapp-web.js";
 import { whatsappClients } from "..";
 
 const getMessages = async (clientId: string, userId: string) => {
@@ -20,14 +20,22 @@ const getMessages = async (clientId: string, userId: string) => {
     }
 }
 
-const createMessages = async (clientId: string, userId: string, message: string) => {
+const createMessages = async (clientId: string, userId: string, message: string, media?: string) => {
     try {
         let response;
-        const whatsapp = whatsappClients.get(clientId);
-        await whatsapp.sendMessage(userId, message);
-        response = {"detail": "message sent"};
-        
-        return response
+        if(media) {
+            const messageMedia = new MessageMedia("image/jpeg", media);
+            const whatsapp = whatsappClients.get(clientId);
+            await whatsapp.sendMessage(userId, messageMedia);
+            response = {"detail": "message sent"};
+        }
+        else {
+            const whatsapp = whatsappClients.get(clientId);
+            await whatsapp.sendMessage(userId, message);
+            response = {"detail": "message sent"};
+        }
+
+        return response;
    
     } catch (e: any) {
         console.log("ERROR -> ", e);
