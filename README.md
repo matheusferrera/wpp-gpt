@@ -44,3 +44,8 @@ webVersionCache: {
 ## API Reference
 
 A Swagger-UI page is hosted at `localhost:3000/api-docs` for the API endpoints.
+
+## External Documentation
+
+Documentation regarding the core WhatsApp library used in this project can be found
+[here](https://docs.wwebjs.dev/index.html) and in their [GitHub page](https://github.com/pedroslopez/whatsapp-web.js).

@@ -40,10 +40,18 @@ components:
         message:
           type: string
           description: The text message to be sent
+        mimeType:
+           type: string
+           description: MIME type of the attachment
+        media:
+           type: string
+           description: Base64-encoded data of the file
       example:
         clientId: client_01
         userId: +5561987665432@us.g
         message: Hello!
+        mimeType: image/jpeg
+        media: ewogICJjbGllbnRJZCI6ICJ...
     Message:
       type: object
       required:

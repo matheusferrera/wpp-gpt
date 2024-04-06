@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 
 export const messageSchema: Schema = new Schema({
     ack: { type: Number, required: true },
-    body: { type: String, required: true },
+    body: { type: String, required: false },
     deviceType: { type: String, required: true },
     forwardingScore: { type: Number, required: true },
     from: { type: String, required: true },
