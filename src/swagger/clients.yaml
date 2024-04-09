@@ -4,21 +4,22 @@ components:
     Client:
       type: object
       required:
-        - id
-        - clientId
+        - userId
+        - wppNumber
+        - name
       properties:
-        id:
+        userId:
           type: string
-          description: The auto-generated id of the client for MongoDB
-        clientId:
-          type: string
-          description: The ID of your client
+          description: The auto-generated id of the user owner for MongoDB
+        wppNumber:
+          type: wppNumber
+          description: The wpp user number 
         name:
-          type: string
-          description: The client name
+          type: name
+          description: Client name
       example:
-        id: d5fE_asz
-        clientId: client_01
+        userId: 6611a9852a73e64431289e5d
+        wppNumber: "5561982501719"
         name: Loja 1
 tags:
   name: Clients

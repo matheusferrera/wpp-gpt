@@ -1,9 +1,16 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 const clientSchema: Schema = new Schema({
-    clientId: { type: String, required: true, unique: true },
-    name: { type: String, required: false, unique: false },
+    userId: { type: String, required: true, unique: false },
+    wppNumber: { type: String, required: true, unique: true },
+    name: { type: String, required: true, unique: false },
 });
+
+export interface IClient extends Document {
+    userId: string;
+    wppNumber: string;
+    name: string;
+}
 
 const ClientModel = mongoose.model('Client', clientSchema);
 

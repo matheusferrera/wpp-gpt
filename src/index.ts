@@ -39,7 +39,7 @@ const options = {
       contact: {
         name: "Matheus Ferreira",
         url: "https://matheusferrera.com",
-        email: "dev.matheusfa@gmail.com",
+        email: "info@email.com",
       },
     },
     servers: [
@@ -59,12 +59,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(cors());
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb'}));
-app.use("/messages", messages);
-app.use("/clients", clients);
-
-//===============================================================================================
-//================================> DB init / Initialize wpp <===================================
-//===============================================================================================
+app.use('/messages', messages);
+app.use('/clients', clients);
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -94,33 +90,31 @@ db.once("open", async () => {
   // Create a change stream on the Message collection
   const changeStream = Message.watch();
 
-  // Get all clients from DB
+  // // Get all clients from DB
   const savedClients = await ClientModel.find();
 
-  //Initialize all WhatsApp clients
-  savedClients.forEach((client) => {
-    const clientId = client["clientId"];
+  // //Initialize all WhatsApp clients
+  savedClients.forEach((client:any) => {
+    const clientId = client["_id"].toString();
     console.log(
-      `[initializeClientFunction] => Initializing client - ${client["clientId"]}`
+      `[initializeClientFunction] => Initializing client - ${clientId}`
     );
     // Initialize WhatsApp client if not already initialized
     if (!whatsappClients.has(clientId)) {
       initializeWhatsAppClient(clientId)
         .then((whatsappClient) => {
           console.log(
-            `[initializeClientFunction] => Client initialized - ${client["clientId"]}`
+            `[initializeClientFunction] => Client initialized - ${clientId}`
           );
           console.log(
-            `[initializeClientFunction] => Initializing sniffer - ${client["clientId"]}`
+            `[initializeClientFunction] => Initializing sniffer - ${clientId}`
           );
           snifferWhatsAppClient(clientId, whatsappClient);
         })
         .then((sniffer) => {
-          console.log(
             console.log(
-              `[initializeClientFunction] => Sniffer initialized - ${client["clientId"]}`
+              `[initializeClientFunction] => Sniffer initialized - ${clientId}`
             )
-          );
         });
     }
   });
@@ -150,7 +144,7 @@ export const whatsappClients = new Map();
 async function initializeWhatsAppClient(clientId: any) {
   const whatsappClient = new Client({
     authStrategy: new LocalAuth({
-      dataPath: clientId,
+      dataPath: "client_"+clientId,
     }),
   });
 
@@ -222,7 +216,7 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
             `[snifferWhatsAppClient ERROR] => Save message into DB - ${clientId} // ${error}`
           );
         });
-
+ 
       // Find the chat by clientId
       ChatModel.findOneAndUpdate(
         { remoteId: message.id.remote, clientId: clientId },

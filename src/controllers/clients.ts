@@ -13,8 +13,8 @@ const getClients = async(req: Request, res: Response) => {
 
 const createClients = async(req: Request, res: Response) => {
     try {
-        const clientId = req.body.clientId;
-        const response = await ClientService.changeClients(clientId);
+        const reqBody = req.body;
+        const response = await ClientService.createClient(reqBody);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());

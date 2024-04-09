@@ -1,6 +1,7 @@
 .wwebjs_cache/
 .wwebjs_auth/
 RemoteAuth*.zip
+client_*
 
 # Logs
 logs
