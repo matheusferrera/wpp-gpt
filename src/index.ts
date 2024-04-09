@@ -39,7 +39,7 @@ const options = {
       contact: {
         name: "Matheus Ferreira",
         url: "https://matheusferrera.com",
-        email: "info@email.com",
+        email: "dev.matheusfa@gmail.com",
       },
     },
     servers: [
