@@ -188,7 +188,7 @@ async function initializeWhatsAppClient(clientId: any) {
 
 async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
   whatsappClient.on("message", (message) => {
-    console.log(`[snifferWhatsAppClient] => Recive message - ${clientId}`);
+    console.log(`[snifferWhatsAppClient] => Receive message - ${clientId}`);
     // Broadcast incoming messages to the corresponding WebSocket client
     io.to(clientId).emit("message-received", message);
   });
