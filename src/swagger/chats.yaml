@@ -10,7 +10,7 @@ components:
       properties:
         id:
           type: string
-          description: The auto-generated id of the client for MongoDB
+          description: The auto-generated id of the chat for MongoDB
         remoteId:
           type: string
           description: The ID of the WhatsApp user
@@ -39,8 +39,8 @@ components:
           type: string
           description: The ID of the WhatsApp client
         message:
-          type: string
-          description: The text message to be sent
+          type: object
+          description: The message to be sent
         mimeType:
            type: string
            description: MIME type of the attachment
@@ -50,7 +50,7 @@ components:
       example:
         clientId: client_01
         userId: +5561987665432@us.g
-        message: Hello!
+        message: {"body": "Hello!"}
         mimeType: image/jpeg
         media: ewogICJjbGllbnRJZCI6ICJ...
     Message:
@@ -255,7 +255,7 @@ tags:
       404:
         description: Chats not found
   delete:
-    summary: Remove all the client's chats
+    summary: Remove all the client's chats for a specific remoteId
     tags: [Chats]
     parameters:
       - in: path
@@ -264,6 +264,12 @@ tags:
           type: string
         required: true
         description: The client id
+      - in: path
+        name: remoteId
+        schema:
+          type: string
+        required: true
+        description: The remote id
     responses:
       200:
         description: The chat was deleted
