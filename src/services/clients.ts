@@ -1,4 +1,4 @@
-import ClientModel, {IClient} from "../models/Client";
+import ClientModel, { IClient } from "../models/Client";
 import { Client, LocalAuth } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 

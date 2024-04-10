@@ -7,6 +7,12 @@ const userSchema: Schema = new Schema({
     messages: [messageSchema], // Nested array of messages
 });
 
+export interface IUser extends Document {
+    userId: string;
+    wppNumber: string;
+    name: string;
+}
+
 const UserModel = mongoose.model('User', userSchema);
 
 export default UserModel;
