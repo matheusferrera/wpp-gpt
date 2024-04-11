@@ -197,45 +197,30 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
 
   whatsappClient.on("message_create", async (message) => {
     console.log(`[snifferWhatsAppClient] => Send message - ${clientId}`);
+    io.to(clientId).emit("message-sent", message);
     const userId = message.from;
 
     // Ignore status messages
     if (userId !== "status@broadcast") {
       // Create a new message document
       const newMessage = new Message(message);
-
-      // Save the message document to the collection
-
-      newMessage
-        .save()
-        .then((savedMessage) => {
-          console.log(
-            `[snifferWhatsAppClient] => Save message into DB - ${clientId}`
-          );
-        })
-        .catch((error) => {
-          console.log(
-            `[snifferWhatsAppClient ERROR] => Save message into DB - ${clientId} // ${error}`
-          );
-        });
  
-      // Find the chat by clientId
+      // Find the chat by clientId and save the message document to the collection
       ChatModel.findOneAndUpdate(
         { remoteId: message.id.remote, clientId: clientId },
         { $push: { messages: newMessage } },
         { upsert: true, new: true }
       )
-        .then((user) => {
-          // console.log("Message saved successfully for user:", user);
-          console.log(
-            `[snifferWhatsAppClient] => Save chat into DB - ${clientId}`
-          );
-        })
-        .catch((error) => {
-          console.log(
-            `[snifferWhatsAppClient ERROR] => Save message into DB - ${clientId} // ${error}`
-          );
-        });
+      .then((user) => {
+        console.log(
+          `[snifferWhatsAppClient] => Saved chat into DB - ${clientId}`
+        );
+      })
+      .catch((error) => {
+        console.log(
+          `[snifferWhatsAppClient ERROR] => Save message into DB - ${clientId} // ${error}`
+        );
+      });
 
     }
   });
@@ -243,13 +228,14 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
 
 // WebSocket connection event
 io.on("connection", (socket) => {
-  console.log("A client connected");
 
-  // Receive client ID from the client
+  // Receive client ID from the frontend
   const clientId = socket.handshake.query.clientId;
 
   // Check existence of received clientId query
   if (clientId && typeof clientId !== "undefined") {
+    console.log(`[socket] => client connected - ${clientId}`);
+
     // Join the room corresponding to the client ID
     socket.join(clientId);
 
@@ -257,11 +243,17 @@ io.on("connection", (socket) => {
     if (!whatsappClients.has(clientId)) {
       initializeWhatsAppClient(clientId);
     }
+  } else {
+    console.log("[socket] => A client connected");
   }
 
-  // Handle disconnection
+  // Handle socket disconnection
   socket.on("disconnect", () => {
-    console.log("A client disconnected");
+    if (clientId && typeof clientId !== "undefined") {
+      console.log(`[socket] => client disconnected - ${clientId}`);
+    } else {
+      console.log("[socket] => A client disconnected");
+    }
   });
 });
 
