@@ -16,7 +16,7 @@ import chats from "./routes/chats";
 // Environment variables configuration
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || "client_01";
+const MONGODB_URI = process.env.MONGODB_URI || "unknown";
 
 //=======================================================================================
 //===================================> API config <======================================
@@ -87,7 +87,7 @@ const db = mongoose.connection;
 const store = new MongoStore({ mongoose: mongoose });
 
 db.once("open", async () => {
-  console.log("Connected to MongoDB");
+  console.log("\x1b[36m[DB] => Server connected to MongoDB\x1b[0m");
 
   // Create a change stream on the Message collection
   const changeStream = Message.watch();
@@ -132,7 +132,7 @@ db.once("open", async () => {
 
 // Handle MongoDB connection errors
 db.on("error", (error) => {
-  console.error("MongoDB connection error:", error);
+  console.error("\x1b[31m[DB] => MongoDB connection error:\x1b[0m", error);
 });
 
 //========================================================================================
@@ -163,7 +163,7 @@ async function initializeWhatsAppClient(clientId: any) {
   });
 
   whatsappClient.on("auth_failure", (msg) => {
-    console.log(`[initializeWhatsAppClient] => Auth_failure - ${clientId}`);
+    console.log(`[initializeWhatsAppClient] => Auth failure - ${clientId}`);
   });
 
   whatsappClient.on("qr", (qr) => {
@@ -176,7 +176,7 @@ async function initializeWhatsAppClient(clientId: any) {
 
   whatsappClient.on("ready", () => {
     console.log(
-      `\u001b[34m[initializeWhatsAppClient] => Client is READY!! - ${clientId}\u001b[0m`
+      `\u001b[34m[initializeWhatsAppClient] => Client is READY - ${clientId}\u001b[0m`
     );
   });
 
@@ -213,18 +213,19 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
       )
       .then((user) => {
         console.log(
-          `[snifferWhatsAppClient] => Saved chat into DB - ${clientId}`
+          `\x1b[36m[snifferWhatsAppClient] => Saved chat into DB - ${clientId}\x1b[0m`
         );
       })
       .catch((error) => {
         console.log(
-          `[snifferWhatsAppClient ERROR] => Save message into DB - ${clientId} // ${error}`
+          `\x1b[31m[snifferWhatsAppClient ERROR] => Save chat into DB - ${clientId} // ${error}\x1b[0m`
         );
       });
 
     }
   });
 }
+
 
 // WebSocket connection event
 io.on("connection", (socket) => {
@@ -234,7 +235,7 @@ io.on("connection", (socket) => {
 
   // Check existence of received clientId query
   if (clientId && typeof clientId !== "undefined") {
-    console.log(`[socket] => client connected - ${clientId}`);
+    console.log(`\x1b[33m[socket] => Client connected - ${clientId}\x1b[0m`);
 
     // Join the room corresponding to the client ID
     socket.join(clientId);
@@ -250,7 +251,7 @@ io.on("connection", (socket) => {
   // Handle socket disconnection
   socket.on("disconnect", () => {
     if (clientId && typeof clientId !== "undefined") {
-      console.log(`[socket] => client disconnected - ${clientId}`);
+      console.log(`[socket] => Client disconnected - ${clientId}`);
     } else {
       console.log("[socket] => A client disconnected");
     }
@@ -260,5 +261,5 @@ io.on("connection", (socket) => {
 // Start the server
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`\x1b[33m[server] => Server is running on port ${port}\x1b[0m`);
 });

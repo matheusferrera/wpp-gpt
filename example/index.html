@@ -8,7 +8,7 @@
 <script>
   const socket = io('http://localhost:3000', {
     query: {
-        clientId: 'client_01'
+        clientId: '660d6c383a74b1bffc802c1b'
     }
 });
 
@@ -28,3 +28,11 @@ socket.on('disconnect', () => {
     console.log('Disconnected from server');
 });
 </script>
+
+<html>
+    <body>
+        <div style="display: flex; align-items: center; justify-content: center; width: 100vw; height: 100vh;">
+            Open dev tools to inspect console logs.
+        </div>
+    </body>
+</html>
