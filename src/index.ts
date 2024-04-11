@@ -13,6 +13,9 @@ import messages from "./routes/messages";
 import clients from "./routes/clients";
 import chats from "./routes/chats";
 
+// Sockets
+import { initializeSocket } from "./sockets/sockets";
+
 // Environment variables configuration
 dotenv.config();
 
@@ -140,7 +143,7 @@ db.on("error", (error) => {
 //========================================================================================
 
 // WhatsApp clients map to store client instances by clientId
-export const whatsappClients = new Map();
+const whatsappClients = new Map();
 
 // Function to initialize WhatsApp client with clientId
 async function initializeWhatsAppClient(clientId: any) {
@@ -226,40 +229,14 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
   });
 }
 
-
-// WebSocket connection event
-io.on("connection", (socket) => {
-
-  // Receive client ID from the frontend
-  const clientId = socket.handshake.query.clientId;
-
-  // Check existence of received clientId query
-  if (clientId && typeof clientId !== "undefined") {
-    console.log(`\x1b[33m[socket] => Client connected - ${clientId}\x1b[0m`);
-
-    // Join the room corresponding to the client ID
-    socket.join(clientId);
-
-    // Initialize WhatsApp client if not already initialized
-    if (!whatsappClients.has(clientId)) {
-      initializeWhatsAppClient(clientId);
-    }
-  } else {
-    console.log("[socket] => A client connected");
-  }
-
-  // Handle socket disconnection
-  socket.on("disconnect", () => {
-    if (clientId && typeof clientId !== "undefined") {
-      console.log(`[socket] => Client disconnected - ${clientId}`);
-    } else {
-      console.log("[socket] => A client disconnected");
-    }
-  });
-});
+// WebSocket initialization
+initializeSocket();
 
 // Start the server
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log(`\x1b[33m[server] => Server is running on port ${port}\x1b[0m`);
 });
+
+// Exports to use in other files
+export { io, whatsappClients, initializeWhatsAppClient };
