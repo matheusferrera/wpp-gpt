@@ -6,20 +6,30 @@ components:
         - userId
         - wppNumber
         - name
+        - email
+        - birthDate
       properties:
         userId:
           type: string
           description: The auto-generated id of the user owner for MongoDB
         wppNumber:
-          type: wppNumber
-          description: The wpp user number 
+          type: string
+          description: The user's WhatsApp number 
         name:
-          type: name
-          description: User name
+          type: string
+          description: User's name
+        email:
+          type: string
+          description: User's email
+        birthDate:
+          type: string
+          description: User's birth date
       example:
         userId: 6611a9852a73e64431289e5d
         wppNumber: "5561982501719"
         name: Fulano da Silva
+        email: fulano@email.com
+        birthDate: 1970-12-06
 tags:
   name: Users
   description: Operations with users

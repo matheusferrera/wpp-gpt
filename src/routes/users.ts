@@ -17,7 +17,7 @@ router.get('/:userId', UsersController.getUsers);
 router.put('/:userId', UsersController.changeUsers);
 
 // DELETE /users/{userId}
-router.delete('/:clientId', UsersController.deleteUsers);
+router.delete('/:userId', UsersController.deleteUsers);
 
 
 export default router;
