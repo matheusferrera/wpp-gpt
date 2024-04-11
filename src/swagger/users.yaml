@@ -4,17 +4,14 @@ components:
       type: object
       required:
         - userId
-        - wppNumber
         - name
         - email
         - birthDate
+        - clients
       properties:
         userId:
           type: string
           description: The auto-generated id of the user owner for MongoDB
-        wppNumber:
-          type: string
-          description: The user's WhatsApp number 
         name:
           type: string
           description: User's name
@@ -24,12 +21,16 @@ components:
         birthDate:
           type: string
           description: User's birth date
+        clients:
+          type: array
+          description: User's WhatsApp clients
       example:
         userId: 6611a9852a73e64431289e5d
         wppNumber: "5561982501719"
         name: Fulano da Silva
         email: fulano@email.com
         birthDate: 1970-12-06
+        clients: [{"userId": "7722a9852a73e64431289e6e", "wppNumber": "5561982501719", "name": "Super Loja"}]
 tags:
   name: Users
   description: Operations with users
