@@ -11,6 +11,7 @@ import swaggerUi from "swagger-ui-express";
 // API files
 import messages from "./routes/messages";
 import clients from "./routes/clients";
+import chats from "./routes/chats";
 
 // Environment variables configuration
 dotenv.config();
@@ -61,6 +62,7 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb'}));
 app.use('/messages', messages);
 app.use('/clients', clients);
+app.use('/chats', chats);
 
 const server = http.createServer(app);
 const io = new Server(server, {
