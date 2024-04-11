@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-const clientSchema: Schema = new Schema({
+export const clientSchema: Schema = new Schema({
     userId: { type: String, required: true, unique: false },
     wppNumber: { type: String, required: true, unique: true },
     name: { type: String, required: true, unique: false },
