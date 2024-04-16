@@ -21,6 +21,16 @@ const createUsers = async(req: Request, res: Response) => {
     }
 }
 
+const createTemplates = async(req: Request, res: Response) => {
+    try {
+        const reqBody = req.body;
+        const response = await UserService.createTemplate(reqBody);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
 const changeUsers = async(req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
@@ -45,6 +55,7 @@ const deleteUsers = async(req: Request, res: Response) => {
 const UsersController = {
     getUsers,
     createUsers,
+    createTemplates,
     changeUsers,
     deleteUsers
 }

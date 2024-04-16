@@ -1,4 +1,5 @@
 import UserModel, { IUser } from "../models/User";
+import TemplateModel, { ITemplate } from "../models/Template";
 
 
 const getUsers = async (userId: string) => {
@@ -29,6 +30,17 @@ const createUser = async (reqBody: IUser) => {
     }
 }
 
+const createTemplate = async (reqBody: IUser) => {
+    try {
+        const newTemplate = new TemplateModel(reqBody);
+        const savedTemplate = await newTemplate.save();
+        return savedTemplate;
+    } catch (e: any) {
+        console.log("[createTemplate ERROR] =>  ", e);
+        throw e;
+    }
+}
+
 const changeUsers = async (userId: string) => {
     try {
         const response = await UserModel.findOneAndUpdate({ userId: userId }, { upsert: true, new: true });
@@ -51,11 +63,12 @@ const deleteUsers = async (userId: string) => {
     }
 }
 
-const MessageService = {
+const UserService = {
     getUsers,
     createUser,
+    createTemplate,
     changeUsers,
     deleteUsers,
 }
 
-export default MessageService; 
+export default UserService; 
