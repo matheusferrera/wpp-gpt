@@ -25,7 +25,6 @@ const createGroups = async (clientId: string, title: string, participants: Array
         let response;
         const whatsapp = whatsappClients.get(clientId);
         response = await whatsapp.createGroup(title, participants);
-        console.log("[createGroups] response => ", response);
         return response;
    
     } catch (e: any) {
