@@ -31,8 +31,7 @@ const createMessages = async (clientId: string, userId: string, message: string,
         }
         else {
             const whatsapp = whatsappClients.get(clientId);
-            await whatsapp.sendMessage(userId, message);
-            response = {"detail": "message sent"};
+            response = await whatsapp.sendMessage(userId, message);
         }
 
         return response;
