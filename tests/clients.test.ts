@@ -3,7 +3,7 @@ import request from "supertest";
 const appUrl = 'http://localhost:3000';
 
 describe('GET /clients', () => {
-  it('should return all clients', () => {
+  it('should return all clients', async () => {
     return request(appUrl)
       .get('/clients')
       .expect('Content-Type', /json/)
@@ -21,5 +21,4 @@ describe('GET /clients', () => {
         // );
       });
   });
-
 });

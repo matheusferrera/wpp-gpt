@@ -43,7 +43,7 @@ const changeUsers = async (userId: string) => {
 
 const deleteUsers = async (userId: string) => {
     try {
-        const response = await UserModel.deleteOne({ userId: userId });
+        const response = await UserModel.deleteOne({ _id: userId });
         return response;
 
     } catch (e: any) {
