@@ -20,21 +20,11 @@ const getGroups = async (clientId: string, remoteId: string) => {
     }
 }
 
-const createGroups = async (clientId: string, remoteId: string, message: string, mimeType?: string, media?: string) => {
+const createGroups = async (clientId: string, title: string, participants: Array<string>) => {
     try {
         let response;
-        if(mimeType && media) {
-            const messageMedia = new MessageMedia(mimeType, media);
-            const whatsapp = whatsappClients.get(clientId);
-            await whatsapp.sendMessage(remoteId, messageMedia);
-            response = {"detail": "message sent"};
-        }
-        else {
-            const whatsapp = whatsappClients.get(clientId);
-            await whatsapp.sendMessage(remoteId, message);
-            response = {"detail": "message sent"};
-        }
-
+        const whatsapp = whatsappClients.get(clientId);
+        response = await whatsapp.createGroup(title, participants);
         return response;
    
     } catch (e: any) {

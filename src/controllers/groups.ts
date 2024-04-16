@@ -15,11 +15,9 @@ const getGroups = async(req: Request, res: Response) => {
 const createGroups = async(req: Request, res: Response) => {
     try {
         const clientId = req.body.clientId;
-        const remoteId = req.body.remoteId;
-        const message = req.body.message;
-        const mimeType = req.body.mimeType;
-        const media = req.body.media;
-        const response = await GroupService.createGroups(clientId, remoteId, message, mimeType, media);
+        const title = req.body.title;
+        const participants = req.body.participants;
+        const response = await GroupService.createGroups(clientId, title, participants);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());

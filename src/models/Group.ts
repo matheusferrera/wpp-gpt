@@ -3,7 +3,6 @@ import { messageSchema } from './Message';
 
 const groupSchema: Schema = new Schema({
     clientId:       { type: String, required: true, unique: false },
-    remoteId:       { type: String, required: true, unique: false },
     archived:       { type: Boolean, required: false, unique: false },
     createdAt:      { type: String, required: false, unique: false },
     description:    { type: String, required: false, unique: false },
