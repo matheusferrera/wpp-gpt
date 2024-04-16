@@ -21,15 +21,15 @@ const getMessages = async (clientId: string, userId: string) => {
     }
 }
 
-const createMessages = async (clientId: string, userId: string, message: string, mimeType?: string, media?: string, isAutomatic?: boolean) => {
+const createMessages = async (clientId: string, userId: string, message: string, mimeType?: string, media?: string, isTemplate?: boolean, template?: Object) => {
     try {
         let response;
-        if(isAutomatic) {
+        if(isTemplate && template) {
             const whatsapp = whatsappClients.get(clientId);
             response = await whatsapp.sendMessage(userId, message);
             const newMessageId = response.id.id;
             const filter = { clientId: clientId, remoteId: userId, 'messages.id.id': newMessageId };
-            const update = { $set: { 'messages.$.isAutomatic': true } }; 
+            const update = { $set: { 'messages.$.isTemplate': true, 'messages.$.template': template } }; 
             const options = { upsert: false, new: true };
 
             setTimeout(async () => {
