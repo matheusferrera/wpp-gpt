@@ -6,17 +6,16 @@ const router: Router = express.Router();
 
 // GET /users
 router.get('/', UsersController.getUsers);
+router.get('/:userId', UsersController.getUsers);
 
 // POST /users
 router.post('/', UsersController.createUsers);
+router.post('/templates', UsersController.createUsers);
 
-// GET /users/{userId}
-router.get('/:userId', UsersController.getUsers);
-
-// PUT /users/{userId}
+// PUT /users
 router.put('/:userId', UsersController.changeUsers);
 
-// DELETE /users/{userId}
+// DELETE /users
 router.delete('/:userId', UsersController.deleteUsers);
 
 

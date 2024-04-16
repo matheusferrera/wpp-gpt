@@ -17,7 +17,7 @@ const groupSchema: Schema = new Schema({
     pinned:         { type: Boolean, required: false, unique: false },
     timestamp:      { type: Number, required: true, unique: false },
     unreadCount:    { type: Number, required: false, unique: false },
-    messages:       [messageSchema], // Nested array of messages
+    category:       { type: String, required: false, unique: false },
 });
 
 const GroupModel = mongoose.model('Group', groupSchema);

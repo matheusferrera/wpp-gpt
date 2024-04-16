@@ -21,7 +21,8 @@ export const messageSchema: Schema = new Schema({
     to: { type: String, required: true },
     type: { type: String, required: true },
     vCards: { type: Array, required: false },
-    isAutomatic: { type: Boolean, required: false, default: false },
+    isTemplate: { type: Boolean, required: false, default: false },
+    template: { type: Object, required: false, default: null },
 });
 
 const MessageModel = mongoose.model('Message', messageSchema);

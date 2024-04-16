@@ -1,5 +1,5 @@
 import GroupModel from "../models/Group";
-import { MessageMedia } from "whatsapp-web.js";
+import { MessageMedia, GroupChat } from "whatsapp-web.js";
 import { whatsappClients } from "..";
 
 const getGroups = async (clientId: string, remoteId: string) => {
@@ -25,6 +25,10 @@ const createGroups = async (clientId: string, title: string, participants: Array
         let response;
         const whatsapp = whatsappClients.get(clientId);
         response = await whatsapp.createGroup(title, participants);
+        // const newGroup = new GroupChat();
+        // save group in DB
+        // const newUser = new UserModel(reqBody);
+        // const savedUser = await newUser.save();
         return response;
    
     } catch (e: any) {
