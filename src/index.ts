@@ -13,6 +13,7 @@ import messages from "./routes/messages";
 import clients from "./routes/clients";
 import chats from "./routes/chats";
 import users from "./routes/users";
+import groups from "./routes/groups";
 
 // Sockets
 import { initializeSocket } from "./sockets/sockets";
@@ -68,6 +69,7 @@ app.use('/messages', messages);
 app.use('/clients', clients);
 app.use('/chats', chats);
 app.use('/users', users);
+app.use('/groups', groups);
 
 const server = http.createServer(app);
 const io = new Server(server, {
