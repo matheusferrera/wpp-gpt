@@ -7,6 +7,7 @@ const router: Router = express.Router();
 // GET /users
 router.get('/', UsersController.getUsers);
 router.get('/:userId', UsersController.getUsers);
+router.get('/:userId/templates', UsersController.getTemplates);
 
 // POST /users
 router.post('/', UsersController.createUsers);

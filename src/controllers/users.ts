@@ -11,6 +11,16 @@ const getUsers = async(req: Request, res: Response) => {
     }
 }
 
+const getTemplates = async(req: Request, res: Response) => {
+    try {
+        const userId = req.params.userId;
+        const response = await UserService.getTemplates(userId);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
 const createUsers = async(req: Request, res: Response) => {
     try {
         const reqBody = req.body;
@@ -54,6 +64,7 @@ const deleteUsers = async(req: Request, res: Response) => {
 
 const UsersController = {
     getUsers,
+    getTemplates,
     createUsers,
     createTemplates,
     changeUsers,
