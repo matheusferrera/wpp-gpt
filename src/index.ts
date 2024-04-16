@@ -12,6 +12,7 @@ import swaggerUi from "swagger-ui-express";
 import messages from "./routes/messages";
 import clients from "./routes/clients";
 import chats from "./routes/chats";
+import users from "./routes/users";
 
 // Sockets
 import { initializeSocket } from "./sockets/sockets";
@@ -66,6 +67,7 @@ app.use(express.urlencoded({limit: '50mb'}));
 app.use('/messages', messages);
 app.use('/clients', clients);
 app.use('/chats', chats);
+app.use('/users', users);
 
 const server = http.createServer(app);
 const io = new Server(server, {
