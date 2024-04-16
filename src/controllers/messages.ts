@@ -19,7 +19,8 @@ const createMessages = async(req: Request, res: Response) => {
         const message = req.body.message;
         const mimeType = req.body.mimeType;
         const media = req.body.media;
-        const response = await MessageService.createMessages(clientId, userId, message, mimeType, media);
+        const isAutomatic = req.body.isAutomatic;
+        const response = await MessageService.createMessages(clientId, userId, message, mimeType, media, isAutomatic);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());

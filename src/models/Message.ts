@@ -21,6 +21,9 @@ export const messageSchema: Schema = new Schema({
     to: { type: String, required: true },
     type: { type: String, required: true },
     vCards: { type: Array, required: false },
+    isAutomatic: { type: Boolean, required: false, default: false },
 });
 
-export default mongoose.model('Message', messageSchema) as unknown as Model<Document>;
+const MessageModel = mongoose.model('Message', messageSchema);
+
+export default MessageModel;
