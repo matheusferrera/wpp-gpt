@@ -232,37 +232,9 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
     }
   });
 
-  whatsappClient.on("group_join", async (join) => {
-    console.log(`[snifferWhatsAppClient] => Group join - ${join}`);
-  });
-
   whatsappClient.on("group_update", async (update) => {
     console.log(`[snifferWhatsAppClient] => Group update:`);
     console.log(update);
-
-    // // Ignore status messages
-    // if (userId !== "status@broadcast") {
-    //   // Create a new message document
-    //   const newMessage = new Message(message);
- 
-    //   // Find the chat by clientId and save the message document to the collection
-    //   ChatModel.findOneAndUpdate(
-    //     { remoteId: message.id.remote, clientId: clientId },
-    //     { $push: { messages: newMessage } },
-    //     { upsert: true, new: true }
-    //   )
-    //   .then((user) => {
-    //     console.log(
-    //       `\x1b[36m[snifferWhatsAppClient] => Saved chat into DB - ${clientId}\x1b[0m`
-    //     );
-    //   })
-    //   .catch((error) => {
-    //     console.log(
-    //       `\x1b[31m[snifferWhatsAppClient ERROR] => Save chat into DB - ${clientId} // ${error}\x1b[0m`
-    //     );
-    //   });
-
-    // }
   });
 }
 
