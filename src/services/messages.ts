@@ -26,8 +26,7 @@ const createMessages = async (clientId: string, userId: string, message: string,
         if(mimeType && media) {
             const messageMedia = new MessageMedia(mimeType, media);
             const whatsapp = whatsappClients.get(clientId);
-            await whatsapp.sendMessage(userId, messageMedia);
-            response = {"detail": "message sent"};
+            response = await whatsapp.sendMessage(userId, messageMedia);
         }
         else {
             const whatsapp = whatsappClients.get(clientId);
