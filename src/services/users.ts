@@ -23,7 +23,7 @@ const getTemplates = async (userId: string) => {
     try {
         let response;
         if (userId) {
-            response = await TemplateModel.find({ _id: userId });
+            response = await UserModel.find({ _id: userId }, { templates: 1 });
         } 
 
         return response;
