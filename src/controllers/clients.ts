@@ -1,4 +1,4 @@
-import {Request, Response } from "express";
+import { Request, Response } from "express";
 import ClientService from "../services/clients";
 
 const getClients = async(req: Request, res: Response) => {

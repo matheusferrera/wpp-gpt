@@ -1,4 +1,4 @@
-import {Request, Response } from "express";
+import { Request, Response } from "express";
 import MessageService from "../services/messages";
 
 const getMessages = async(req: Request, res: Response) => {

@@ -101,7 +101,7 @@ const deleteClients = async (clientId: string) => {
     }
 }
 
-const MessageService = {
+const ClientService = {
     getClients,
     createClient,
     changeClients,
@@ -109,4 +109,4 @@ const MessageService = {
     activeClients
 }
 
-export default MessageService; 
+export default ClientService; 

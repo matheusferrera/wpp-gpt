@@ -75,10 +75,10 @@ const deleteMessages = async (clientId: string, userId: string) => {
     }
 }
 
-const ClientService = {
+const MessageService = {
     getMessages,
     deleteMessages,
     createMessages
 }
 
-export default ClientService;
+export default MessageService;
