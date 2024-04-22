@@ -22,7 +22,7 @@ components:
           description: The user messages for that client
       example:
         id: d5fE_asz
-        remoteId: +5561987665432@us.g
+        remoteId: 5561987665432@us.g
         clientId: client_01
         messages: [Hello, world!]
     ChatRequestBody:
@@ -49,8 +49,8 @@ components:
            description: Base64-encoded data of the file
       example:
         clientId: client_01
-        userId: +5561987665432@us.g
-        message: {"body": "Hello!"}
+        remoteId: 5561987665432@c.us
+        message: "Hello world!"
         mimeType: image/jpeg
         media: ewogICJjbGllbnRJZCI6ICJ...
     Message:
@@ -162,21 +162,79 @@ components:
 tags:
   - name: Chats
     description: Operations with chat messages
-/chats:
+/chats/{clientId}:
   get:
-    summary: Lists all the chats
+    summary: Get the clients' chats
     tags: [Chats]
+    parameters:
+      - in: path
+        name: clientId
+        schema:
+          type: string
+        required: true
+        description: The client id
+      - in: query
+        name: limit
+        schema:
+          type: string
+        required: true
+        description: The limit of returns chats  
+      - in: query
+        name: page
+        schema:
+          type: string
+        required: true
+        description: The page of returns chats    
     responses:
       200:
-        description: The list of the saved chats
-        content:
+        description: The client's chats by clientId
+        contens:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/Chat'
+              $ref: '#/components/schemas/Chat'
+      404:
+        description: The chat was not found
+/chats/getMessage/{clientId}/{wppNumber}:
+  get:
+    summary: get messages od chat
+    tags: [Chats]
+    parameters:
+      - in: path
+        name: clientId
+        schema:
+          type: string
+        required: true
+        description: The client id
+      - in: path
+        name: wppNumber
+        schema:
+          type: string
+        required: true
+        description: The whatsapp number to get messages
+      - in: query
+        name: limit
+        schema:
+          type: string
+        required: true
+        description: The limit of returns chats  
+      - in: query
+        name: page
+        schema:
+          type: string
+        required: true
+        description: The page of returns chats    
+    responses:
+      200:
+        description: The client's chats by clientId
+        contens:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chat'
+      404:
+        description: The chat was not found
+/chats/sendMessage:
   post:
-    summary: Create a new chat
+    summary: Send a new message
     tags: [Chats]
     requestBody:
       required: true
@@ -193,85 +251,3 @@ tags:
               $ref: '#/components/schemas/Chat'
       500:
         description: Some server error
-/chats/{clientId}:
-  get:
-    summary: Get the clients' chats
-    tags: [Chats]
-    parameters:
-      - in: path
-        name: clientId
-        schema:
-          type: string
-        required: true
-        description: The client id
-    responses:
-      200:
-        description: The client's chats by clientId
-        contens:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Chat'
-      404:
-        description: The chat was not found
-  delete:
-    summary: Remove all the client's chats
-    tags: [Chat]
-    parameters:
-      - in: path
-        name: clientId
-        schema:
-          type: string
-        required: true
-        description: The client id
-    responses:
-      200:
-        description: The chat was deleted
-      404:
-        description: The chat was not found
-/chats/{clientId}/{remoteId}:
-  get:
-    summary: Get the all the messages from a user to a client
-    tags: [Chats]
-    parameters:
-      - in: path
-        name: clientId
-        schema:
-          type: string
-        required: true
-        description: The client id
-      - in: path
-        name: remoteId
-        schema:
-          type: string
-        required: true
-        description: The remote id
-    responses:
-      200:
-        description: The messages for a user to a client
-        contens:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Chat'
-      404:
-        description: Chats not found
-  delete:
-    summary: Remove all the client's chats for a specific remoteId
-    tags: [Chats]
-    parameters:
-      - in: path
-        name: clientId
-        schema:
-          type: string
-        required: true
-        description: The client id
-      - in: path
-        name: remoteId
-        schema:
-          type: string
-        required: true
-        description: The remote id
-    responses:
-      200:
-        description: The chat was deleted
-      404:
-        description: The chat was not found

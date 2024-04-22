@@ -4,8 +4,22 @@ import ChatService from "../services/chats";
 const getChats = async(req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
-        const remoteId = req.params.remoteId;
-        const response = await ChatService.getChats(clientId, remoteId);
+        const limit = parseInt(req.query.limit as string) ;
+        const page = parseInt(req.query.page as string) ;
+        const response = await ChatService.getChats(clientId, limit, page);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
+const getMessagesChats = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const wppNumber = req.params.wppNumber;
+        const limit = parseInt(req.query.limit as string) ;
+        const page = parseInt(req.query.page as string) ;
+        const response = await ChatService.getMessagesChats(clientId, wppNumber, limit, page);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());
@@ -26,22 +40,11 @@ const createChats = async(req: Request, res: Response) => {
     }
 }
 
-const deleteChats = async(req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        const remoteId = req.params.remoteId;
-        console.log("DETE -> ", clientId);
-        const response = await ChatService.deleteChats(clientId, remoteId);
-        res.send(response);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-}
 
 const MessageController = {
     getChats,
+    getMessagesChats,
     createChats,
-    deleteChats
 }
 
 export default MessageController

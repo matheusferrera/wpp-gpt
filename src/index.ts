@@ -14,6 +14,7 @@ import clients from "./routes/clients";
 import chats from "./routes/chats";
 import users from "./routes/users";
 import groups from "./routes/groups";
+import contacts from "./routes/contacts";
 
 // Sockets
 import { initializeSocket } from "./sockets/sockets";
@@ -70,6 +71,7 @@ app.use('/clients', clients);
 app.use('/chats', chats);
 app.use('/users', users);
 app.use('/groups', groups);
+app.use('/contacts', contacts);
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -182,6 +184,7 @@ async function initializeWhatsAppClient(clientId: any) {
   });
 
   whatsappClient.on("ready", () => {
+    
     console.log(
       `\u001b[34m[initializeWhatsAppClient] => Client is READY - ${clientId}\u001b[0m`
     );

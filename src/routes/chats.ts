@@ -8,16 +8,10 @@ const router: Router = express.Router();
 router.get('/:clientId', ChatController.getChats);
 
 // GET /chats/{clientId}/{remoteId}
-router.get('/:clientId/:remoteId', ChatController.getChats);
+router.get('/getMessage/:clientId/:wppNumber', ChatController.getMessagesChats);
 
 // POST /chats
-router.post('/', ChatController.createChats);
-
-// DELETE /chats/{clientId}
-router.delete('/:clientId', ChatController.deleteChats);
-
-// DELETE /chats/{clientId}/{remoteId}
-router.delete('/:clientId/:remoteId', ChatController.deleteChats);
+router.post('/sendMessage/', ChatController.createChats);
 
 
 export default router;
