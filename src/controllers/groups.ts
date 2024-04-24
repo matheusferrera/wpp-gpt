@@ -28,7 +28,7 @@ const deleteGroups = async(req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
         const remoteId = req.params.remoteId;
-        console.log("DETE -> ", clientId);
+        console.log("DELETE -> ", clientId);
         const response = await GroupService.deleteGroups(clientId, remoteId);
         res.send(response);
     } catch (e: any) {
