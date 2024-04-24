@@ -25,11 +25,20 @@ const createGroups = async (clientId: string, title: string, participants: Array
         let response;
         const whatsapp = whatsappClients.get(clientId);
         response = await whatsapp.createGroup(title, participants);
+
+        const groupId = response.gid._serialized;
+        const ch = await whatsapp.getChatById(groupId);
+        const gr = ch as GroupChat;
+        // let gr = new GroupChat(whatsapp, ch);
+
+        console.log("groupchat", gr);
         // const newGroup = new GroupChat();
         // save group in DB
         // const newUser = new UserModel(reqBody);
         // const savedUser = await newUser.save();
-        return response;
+
+        return gr;
+        // return response;
    
     } catch (e: any) {
         console.log("ERROR -> ", e);
