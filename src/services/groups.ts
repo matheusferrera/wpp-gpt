@@ -45,6 +45,7 @@ const deleteGroups = async (clientId: string, remoteId: string) => {
             const groupObj = await whatsapp.getChatById(remoteId);
             const group = groupObj as GroupChat;
             response = await group.leave();
+            response = await group.delete();
             // response = await GroupModel.updateMany({ clientId: clientId, remoteId: remoteId }, { messages: [] });
         } else if(clientId){
             response = await GroupModel.updateMany({ clientId: clientId }, { messages: [] });
