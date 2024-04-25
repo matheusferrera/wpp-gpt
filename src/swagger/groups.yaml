@@ -1,5 +1,20 @@
 components:
   schemas:
+    GroupRequestBody:
+      type: object
+      required:
+        - title
+        - participants
+      properties:
+        title:
+          type: string
+          description: The title of the group
+        participants:
+          type: array
+          description: An array of strings for wpp ids of each member
+      example:
+        title: Grupo de Vendas
+        participants: ["556187665432@us.c"]
     Group:
       type: object
       required:
@@ -61,6 +76,31 @@ tags:
     responses:
       200:
         description: The requested group
+        contens:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      404:
+        description: The group was not found
+  post:
+    summary: Create a group
+    tags: [Groups]
+    parameters:
+      - in: path
+        name: clientId
+        schema:
+          type: string
+        required: true
+        description: The client id
+    requestBody:
+     required: true
+     content:
+       application/json:
+         schema:
+           $ref: '#/components/schemas/GroupRequestBody'
+    responses:
+      200:
+        description: The new group
         contens:
           application/json:
             schema:
