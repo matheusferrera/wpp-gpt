@@ -1,5 +1,5 @@
 import GroupModel from "../models/Group";
-import { MessageMedia, GroupChat } from "whatsapp-web.js";
+import { GroupChat } from "whatsapp-web.js";
 import { whatsappClients } from "..";
 
 const getGroups = async (clientId: string, remoteId: string) => {
@@ -47,8 +47,6 @@ const deleteGroups = async (clientId: string, remoteId: string) => {
             response = await group.leave();
             response = await group.delete();
             // response = await GroupModel.updateMany({ clientId: clientId, remoteId: remoteId }, { messages: [] });
-        } else if(clientId){
-            response = await GroupModel.updateMany({ clientId: clientId }, { messages: [] });
         } else {
             response = await GroupModel.find();
         }
@@ -60,10 +58,10 @@ const deleteGroups = async (clientId: string, remoteId: string) => {
     }
 }
 
-const ChatService = {
+const GroupService = {
     getGroups,
     createGroups,
     deleteGroups
 }
 
-export default ChatService;
+export default GroupService;
