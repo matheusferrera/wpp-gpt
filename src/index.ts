@@ -234,11 +234,6 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
 
     }
   });
-
-  whatsappClient.on("group_update", async (update) => {
-    console.log(`[snifferWhatsAppClient] => Group update:`);
-    console.log(update);
-  });
 }
 
 // WebSocket initialization
