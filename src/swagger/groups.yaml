@@ -1,5 +1,15 @@
 components:
   schemas:
+    GroupRequestBodyPut:
+      type: object
+      required:
+        - subject
+      properties:
+        subject:
+          type: string
+          description: The title of the group
+      example:
+        title: Grupo de Vendas
     GroupRequestBody:
       type: object
       required:
@@ -127,6 +137,37 @@ tags:
     responses:
       200:
         description: The requested group
+        contens:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      404:
+        description: The group was not found
+  put:
+    summary: Update a client's group by id
+    tags: [Groups]
+    parameters:
+      - in: path
+        name: clientId
+        schema:
+          type: string
+        required: true
+        description: The client id
+      - in: path
+        name: remoteId
+        schema:
+          type: string
+        required: true
+        description: The remote id
+    requestBody:
+     required: true
+     content:
+       application/json:
+         schema:
+           $ref: '#/components/schemas/GroupRequestBodyPut'
+    responses:
+      200:
+        description: Group deleted
         contens:
           application/json:
             schema:

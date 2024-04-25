@@ -24,6 +24,18 @@ const createGroups = async(req: Request, res: Response) => {
     }
 }
 
+const updateGroups = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const remoteId = req.params.remoteId;
+        const subject = req.body.subject;
+        const response = await GroupService.updateGroups(clientId, remoteId, subject);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
 const deleteGroups = async(req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
@@ -39,6 +51,7 @@ const deleteGroups = async(req: Request, res: Response) => {
 const GroupController = {
     getGroups,
     createGroups,
+    updateGroups,
     deleteGroups
 }
 

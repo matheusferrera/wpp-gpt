@@ -13,6 +13,9 @@ router.post('/:clientId', GroupController.createGroups);
 // GET /groups/{clientId}/{remoteId}
 router.get('/:clientId/:remoteId', GroupController.getGroups);
 
+// PUT /groups/{clientId}/{remoteId}
+router.put('/:clientId/:remoteId', GroupController.updateGroups);
+
 // DELETE /groups/{clientId}/{remoteId}
 router.delete('/:clientId/:remoteId', GroupController.deleteGroups);
 

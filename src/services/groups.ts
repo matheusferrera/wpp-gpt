@@ -48,6 +48,27 @@ const createGroups = async (clientId: string, title: string, participants: Array
     }
 }
 
+const updateGroups = async (clientId: string, remoteId: string, subject: string) => {
+    try {
+        let response;
+        if(clientId && remoteId){
+            const whatsapp = whatsappClients.get(clientId);
+            const groupObj = await whatsapp.getChatById(remoteId);
+            const group = groupObj as GroupChat;
+            response = await group.setSubject(subject);
+            // response = await GroupModel.updateMany({ clientId: clientId, remoteId: remoteId }, { messages: [] });
+        } else {
+            response = await GroupModel.find();
+        }
+        
+        return response;
+   
+    } catch (e: any) {
+        console.log("ERROR -> ", e);
+    }
+}
+
+
 const deleteGroups = async (clientId: string, remoteId: string) => {
     try {
         let response;
@@ -72,6 +93,7 @@ const deleteGroups = async (clientId: string, remoteId: string) => {
 const GroupService = {
     getGroups,
     createGroups,
+    updateGroups,
     deleteGroups
 }
 
