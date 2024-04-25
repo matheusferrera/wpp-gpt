@@ -5,10 +5,21 @@ import { whatsappClients } from "..";
 const getGroups = async (clientId: string, remoteId: string) => {
     try {
         let response;
-        if(clientId && remoteId){
-            response = await GroupModel.find({ clientId: clientId, remoteId: remoteId });
-        } else if(clientId){
-            response = await GroupModel.find({ clientId: clientId });
+        if(clientId && remoteId) {
+            // response = await GroupModel.find({ clientId: clientId, remoteId: remoteId });
+            const whatsapp = whatsappClients.get(clientId);
+            const groupObj = await whatsapp.getChatById(remoteId);
+            response = groupObj as GroupChat;
+        } else if(clientId) {
+            // response = await GroupModel.find({ clientId: clientId });
+            const whatsapp = whatsappClients.get(clientId);
+            const chats = await whatsapp.getChats();
+            const chatObjects = chats.filter((chat: any) => chat.isGroup);
+            const groupChats = chatObjects.map((groupChat: any) => {
+                const groupChatObj = groupChat as GroupChat;
+                return groupChatObj;
+            });
+            response = groupChats;
         } else {
             response = await GroupModel.find();
         }
