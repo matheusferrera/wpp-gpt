@@ -14,7 +14,7 @@ const getGroups = async(req: Request, res: Response) => {
 
 const createGroups = async(req: Request, res: Response) => {
     try {
-        const clientId = req.body.clientId;
+        const clientId = req.params.clientId;
         const title = req.body.title;
         const participants = req.body.participants;
         const response = await GroupService.createGroups(clientId, title, participants);
