@@ -68,7 +68,7 @@ tags:
 /user/{userId}:
   get:
     summary: Get the user by id
-    tags: [User]
+    tags: [Users]
     parameters:
       - in: path
         name: userId
