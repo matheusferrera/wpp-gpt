@@ -204,7 +204,21 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
     console.log(`[snifferWhatsAppClient] => Send message - ${clientId}`);
 
     if(message.fromMe) {
+      // get last N chats
+      const chats = await whatsappClient.getChats();
+      const n = 3;
+      const lastNChats = chats.slice(0, n);
+
+      // get last N messages for a window-specific chat
+      const wppId = lastNChats[0].id._serialized;                                     // example
+      const activeChat = chats.filter((chat) => chat.id._serialized == wppId)[0];
+      const searchOptions = { limit: 10 };
+      const last10MessageActiveChat = await activeChat.fetchMessages(searchOptions);
+
+      // emit socket events for the frontend
       io.to(clientId).emit("message-sent", message);
+      io.to(clientId).emit("last-chats", lastNChats);
+      io.to(clientId).emit("last-messages", last10MessageActiveChat);
     } else {
       io.to(clientId).emit("message-received", message);
     }

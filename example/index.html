@@ -20,6 +20,14 @@ socket.on('message-sent', (data) => {
     console.log('Message sent:', data);
 });
 
+socket.on('last-chats', (data) => {
+    console.log('Last chats:', data);
+});
+
+socket.on('last-messages', (data) => {
+    console.log('Last messages:', data);
+});
+
 socket.on('message-received', (data) => {
     console.log('Message received:', data);
 });
