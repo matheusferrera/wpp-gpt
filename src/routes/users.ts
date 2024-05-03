@@ -11,7 +11,7 @@ router.get('/:userId/templates', UsersController.getTemplates);
 
 // POST /users
 router.post('/', UsersController.createUsers);
-router.post('/templates', UsersController.createTemplates);
+router.post('/:userId/templates', UsersController.createTemplates);
 
 // PUT /users
 router.put('/:userId', UsersController.changeUsers);

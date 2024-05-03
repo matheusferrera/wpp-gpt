@@ -45,10 +45,14 @@ const createUser = async (reqBody: IUser) => {
     }
 }
 
-const createTemplate = async (reqBody: ITemplate) => {
+const createTemplate = async (userId: string, reqBody: ITemplate) => {
     try {
         const newTemplate = new TemplateModel(reqBody);
-        const savedTemplate = await newTemplate.save();
+        const savedTemplate = await UserModel.findOneAndUpdate(
+            { _id: userId },
+            { $push: { templates: newTemplate } },
+            { returnOriginal: false } // To return the updated document
+        );
         return savedTemplate;
     } catch (e: any) {
         console.log("[createTemplate ERROR] =>  ", e);

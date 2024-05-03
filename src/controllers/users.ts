@@ -33,8 +33,9 @@ const createUsers = async(req: Request, res: Response) => {
 
 const createTemplates = async(req: Request, res: Response) => {
     try {
+        const userId = req.params.userId;
         const reqBody = req.body;
-        const response = await UserService.createTemplate(reqBody);
+        const response = await UserService.createTemplate(userId, reqBody);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());
