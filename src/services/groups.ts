@@ -80,10 +80,19 @@ const addLabels = async (clientId: string, remoteId: string, label: Array<string
     }
 }
 
-const createLabels = async (clientId: string, remoteId: string, labelData: Object) => {
+const createLabels = async (clientId: string, remoteId: string, labelData: any) => {
     try {
         let response;
         const whatsapp = whatsappClients.get(clientId);
+        const label: Label = {
+            id: labelData.id,
+            name: labelData.name,
+            hexColor: labelData.hexColor,
+            getChats: async () => {
+                return whatsapp.getChatsByLabelId(labelData.id);
+            }
+        };
+        response = label;
         // response = await new Label(whatsapp, labelData);
         // response = await (whatsapp, labelData) as unknown as Label;
 
@@ -129,7 +138,6 @@ const updateGroups = async (clientId: string, remoteId: string, subject: string)
         console.log("ERROR -> ", e);
     }
 }
-
 
 const deleteGroups = async (clientId: string, remoteId: string) => {
     try {
