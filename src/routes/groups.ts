@@ -13,11 +13,17 @@ router.post('/:clientId', GroupController.createGroups);
 // GET /groups/{clientId}/{remoteId}
 router.get('/:clientId/:remoteId', GroupController.getGroups);
 
+// POST /groups/labels/{clientId}
+router.post('/labels/:clientId', GroupController.createLabels);
+
 // GET /groups/labels/{clientId}/{remoteId}
 router.get('/labels/:clientId/:remoteId', GroupController.getLabels);
 
 // POST /groups/labels/{clientId}/{remoteId}
-router.post('/labels/:clientId/:remoteId', GroupController.createLabels);
+router.post('/labels/:clientId/:remoteId', GroupController.addLabels);
+
+// DELETE /groups/labels/{clientId}/{remoteId}
+router.delete('/labels/:clientId/:remoteId', GroupController.deleteLabels);
 
 // PUT /groups/{clientId}/{remoteId}
 router.put('/:clientId/:remoteId', GroupController.updateGroups);

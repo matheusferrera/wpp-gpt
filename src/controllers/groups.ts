@@ -35,12 +35,36 @@ const getLabels = async(req: Request, res: Response) => {
     }
 }
 
-const createLabels = async(req: Request, res: Response) => {
+const addLabels = async(req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
         const remoteId = req.params.remoteId;
         const label = req.body.label;
-        const response = await GroupService.createLabels(clientId, remoteId, label);
+        const response = await GroupService.addLabels(clientId, remoteId, label);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
+const createLabels = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const remoteId = req.params.remoteId;
+        const labelData = req.body.labelData;
+        const response = await GroupService.createLabels(clientId, remoteId, labelData);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
+const deleteLabels = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const remoteId = req.params.remoteId;
+        const labelId = req.body.labelId;
+        const response = await GroupService.deleteLabels(clientId, remoteId, labelId);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());
@@ -76,6 +100,8 @@ const GroupController = {
     createGroups,
     getLabels,
     createLabels,
+    addLabels,
+    deleteLabels,
     updateGroups,
     deleteGroups
 }

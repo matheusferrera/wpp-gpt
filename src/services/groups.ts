@@ -1,5 +1,5 @@
 import GroupModel from "../models/Group";
-import { GroupChat } from "whatsapp-web.js";
+import { GroupChat, Label } from "whatsapp-web.js";
 import { whatsappClients } from "..";
 
 const getGroups = async (clientId: string, remoteId: string) => {
@@ -64,7 +64,7 @@ const getLabels = async (clientId: string, remoteId: string) => {
     }
 }
 
-const createLabels = async (clientId: string, remoteId: string, label: Array<string>) => {
+const addLabels = async (clientId: string, remoteId: string, label: Array<string>) => {
     try {
         let response;
         const whatsapp = whatsappClients.get(clientId);
@@ -72,6 +72,36 @@ const createLabels = async (clientId: string, remoteId: string, label: Array<str
         const groupObj = await whatsapp.getChatById(remoteId);
         const group = groupObj as GroupChat;
         response = await group.changeLabels(label);
+
+        return response;
+   
+    } catch (e: any) {
+        console.log("ERROR -> ", e);
+    }
+}
+
+const createLabels = async (clientId: string, remoteId: string, labelData: Object) => {
+    try {
+        let response;
+        const whatsapp = whatsappClients.get(clientId);
+        // response = await new Label(whatsapp, labelData);
+        // response = await (whatsapp, labelData) as unknown as Label;
+
+        return response;
+   
+    } catch (e: any) {
+        console.log("ERROR -> ", e);
+    }
+}
+
+const deleteLabels = async (clientId: string, remoteId: string, labelId: string) => {
+    try {
+        let response;
+        const whatsapp = whatsappClients.get(clientId);
+
+        const groupObj = await whatsapp.getChatById(remoteId);
+        const group = groupObj as GroupChat;
+        response = await group.changeLabels([labelId]);
 
         return response;
    
@@ -127,6 +157,8 @@ const GroupService = {
     createGroups,
     getLabels,
     createLabels,
+    addLabels,
+    deleteLabels,
     updateGroups,
     deleteGroups
 }
