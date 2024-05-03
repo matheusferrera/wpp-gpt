@@ -35,7 +35,7 @@ const createMessages = async (clientId: string, remoteId: string, userId: string
                     'templates._id': template._id // Match the template within the array
                 },
                 { 
-                    $inc: { 'templates.$[elem].counter': 1 } // Increment counter within the matched template
+                    $inc: { 'templates.$[elem].count': 1 } // Increment count within the matched template
                 },
                 { 
                     returnOriginal: false, // To return the updated document
