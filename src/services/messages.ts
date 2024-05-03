@@ -21,24 +21,40 @@ const getMessages = async (clientId: string, userId: string) => {
     }
 }
 
-const createMessages = async (clientId: string, userId: string, message: string, mimeType?: string, media?: string, isTemplate?: boolean, template?: Object) => {
+const createMessages = async (clientId: string, remoteId: string, userId: string, message: string, mimeType?: string, media?: string, isTemplate?: boolean, template?: any) => {
     try {
         let response;
         if(isTemplate && template) {
             const whatsapp = whatsappClients.get(clientId);
-            response = await whatsapp.sendMessage(userId, message);
-            const newMessageId = response.id.id;
-            const filter = { clientId: clientId, remoteId: userId, 'messages.id.id': newMessageId };
-            const update = { $set: { 'messages.$.isTemplate': true, 'messages.$.template': template } }; 
-            const options = { upsert: false, new: true };
+            response = await whatsapp.sendMessage(remoteId, template.text);
 
-            setTimeout(async () => {
-                try {
-                    response = await ChatModel.findOneAndUpdate(filter, update, options);
-                } catch (error: any) {
-                    console.error("ERROR -> ", error);
+            // update counter
+            response = await UserModel.findOneAndUpdate(
+                { 
+                    _id: userId,
+                    'templates._id': template._id // Match the template within the array
+                },
+                { 
+                    $inc: { 'templates.$[elem].counter': 1 } // Increment counter within the matched template
+                },
+                { 
+                    returnOriginal: false, // To return the updated document
+                    arrayFilters: [{ 'elem._id': template._id }] // Filter array element to update
                 }
-            }, 2000);
+            );
+
+            // const newMessageId = response.id.id;
+            // const filter = { clientId: clientId, remoteId: userId, 'messages.id.id': newMessageId };
+            // const update = { $set: { 'messages.$.isTemplate': true, 'messages.$.template': template } }; 
+            // const options = { upsert: false, new: true };
+
+            // setTimeout(async () => {
+            //     try {
+            //         response = await ChatModel.findOneAndUpdate(filter, update, options);
+            //     } catch (error: any) {
+            //         console.error("ERROR -> ", error);
+            //     }
+            // }, 2000);
         }
         else if(mimeType && media) {
             const messageMedia = new MessageMedia(mimeType, media);
