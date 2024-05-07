@@ -4,29 +4,21 @@ import GroupController from "../controllers/groups";
 const router: Router = express.Router();
 
 
-// GET /groups/{clientId}
+// GET /groups
 router.get('/:clientId', GroupController.getGroups);
-
-// POST /groups/{clientId}
-router.post('/:clientId', GroupController.createGroups);
-
-// GET /groups/{clientId}/{remoteId}
 router.get('/:clientId/:remoteId', GroupController.getGroups);
-
-// GET /groups/labels/{clientId}/{remoteId}
 router.get('/labels/:clientId/:remoteId', GroupController.getLabels);
 
-// POST /groups/labels/{clientId}/{remoteId}
+// POST /groups
+router.post('/:clientId', GroupController.createGroups);
 router.post('/labels/:clientId/:remoteId', GroupController.addLabels);
 
-// DELETE /groups/labels/{clientId}/{remoteId}
-router.delete('/labels/:clientId/:remoteId', GroupController.deleteLabels);
-
-// PUT /groups/{clientId}/{remoteId}
+// PUT /groups
 router.put('/:clientId/:remoteId', GroupController.updateGroups);
 
-// DELETE /groups/{clientId}/{remoteId}
+// DELETE /groups
 router.delete('/:clientId/:remoteId', GroupController.deleteGroups);
+router.delete('/labels/:clientId/:remoteId', GroupController.deleteLabels);
 
 
 export default router;
