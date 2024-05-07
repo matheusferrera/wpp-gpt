@@ -64,7 +64,10 @@ const updateGroups = async(req: Request, res: Response) => {
         const clientId = req.params.clientId;
         const remoteId = req.params.remoteId;
         const subject = req.body.subject;
-        const response = await GroupService.updateGroups(clientId, remoteId, subject);
+        const description = req.body.description;
+        const mimeType = req.body.mimeType;
+        const media = req.body.media;
+        const response = await GroupService.updateGroups(clientId, remoteId, subject, description, mimeType, media);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());

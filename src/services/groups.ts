@@ -1,5 +1,5 @@
 import GroupModel from "../models/Group";
-import { GroupChat, Label } from "whatsapp-web.js";
+import { GroupChat, MessageMedia } from "whatsapp-web.js";
 import { whatsappClients } from "..";
 
 const getGroups = async (clientId: string, remoteId: string) => {
@@ -102,21 +102,25 @@ const deleteLabels = async (clientId: string, remoteId: string, label: string) =
     }
 }
 
-const updateGroups = async (clientId: string, remoteId: string, subject: string) => {
+const updateGroups = async (clientId: string, remoteId: string, subject?: string, description?: string, mimeType?: string, media?: string) => {
     try {
         let response;
-        if(clientId && remoteId){
+        if (clientId && remoteId) {
             const whatsapp = whatsappClients.get(clientId);
             const groupObj = await whatsapp.getChatById(remoteId);
             const group = groupObj as GroupChat;
-            response = await group.setSubject(subject);
-            // response = await GroupModel.updateMany({ clientId: clientId, remoteId: remoteId }, { messages: [] });
-        } else {
-            response = await GroupModel.find();
-        }
-        
+            if (subject) {
+                response = await group.setSubject(subject);
+            }
+            if (description) {
+                response = await group.setDescription(description);
+            }
+            if (mimeType && media) {
+                const pictureMedia = new MessageMedia(mimeType, media);
+                response = await group.setPicture(pictureMedia);
+            }
+        } 
         return response;
-   
     } catch (e: any) {
         console.log("ERROR -> ", e);
     }
