@@ -14,7 +14,7 @@ router.post('/:clientId', GroupController.createGroups);
 router.post('/labels/:clientId/:remoteId', GroupController.addLabels);
 
 // PUT /groups
-router.put('/:clientId/:remoteId', GroupController.updateGroups);
+router.put('/:clientId', GroupController.updateGroups);
 
 // DELETE /groups
 router.delete('/:clientId/:remoteId', GroupController.deleteGroups);

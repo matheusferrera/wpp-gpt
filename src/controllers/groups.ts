@@ -62,7 +62,7 @@ const deleteLabels = async(req: Request, res: Response) => {
 const updateGroups = async(req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
-        const remoteId = req.params.remoteId;
+        const remoteId = req.body.remoteId;
         const subject = req.body.subject;
         const description = req.body.description;
         const mimeType = req.body.mimeType;
