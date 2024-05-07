@@ -1,5 +1,6 @@
 import GroupModel from "../models/Group";
-import { GroupChat, MessageMedia } from "whatsapp-web.js";
+import ChatModel from "../models/Chat";
+import { Chat, GroupChat, MessageMedia } from "whatsapp-web.js";
 import { whatsappClients } from "..";
 
 const getGroups = async (clientId: string, remoteId: string) => {
@@ -102,7 +103,7 @@ const deleteLabels = async (clientId: string, remoteId: string, label: string) =
     }
 }
 
-const updateGroups = async (clientId: string, remoteId: string, subject?: string, description?: string, mimeType?: string, media?: string) => {
+const updateGroups = async (clientId: string, remoteId?: string, subject?: string, description?: string, mimeType?: string, media?: string, withLabel?: string) => {
     try {
         let response;
         if (clientId && remoteId) {
@@ -119,7 +120,30 @@ const updateGroups = async (clientId: string, remoteId: string, subject?: string
                 const pictureMedia = new MessageMedia(mimeType, media);
                 response = await group.setPicture(pictureMedia);
             }
-        } 
+        } else if (clientId && withLabel) {
+            const whatsapp = whatsappClients.get(clientId);
+            const groupChatsWithLabel = await ChatModel.find(
+                { 
+                    clientId: clientId, 
+                    labels: { $elemMatch: { $eq: withLabel } } 
+                }
+            );
+
+            groupChatsWithLabel.forEach(async (document) => {
+                const groupObj = await whatsapp.getChatById(document.remoteId);
+                const group = groupObj as GroupChat;
+                if (subject) {
+                    response = await group.setSubject(subject);
+                }
+                if (description) {
+                    response = await group.setDescription(description);
+                }
+                if (mimeType && media) {
+                    const pictureMedia = new MessageMedia(mimeType, media);
+                    response = await group.setPicture(pictureMedia);
+                }
+            });
+        }
         return response;
     } catch (e: any) {
         console.log("ERROR -> ", e);

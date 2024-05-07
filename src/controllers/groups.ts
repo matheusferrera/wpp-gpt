@@ -67,7 +67,8 @@ const updateGroups = async(req: Request, res: Response) => {
         const description = req.body.description;
         const mimeType = req.body.mimeType;
         const media = req.body.media;
-        const response = await GroupService.updateGroups(clientId, remoteId, subject, description, mimeType, media);
+        const withLabel = req.body.withLabel;
+        const response = await GroupService.updateGroups(clientId, remoteId, subject, description, mimeType, media, withLabel);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());
