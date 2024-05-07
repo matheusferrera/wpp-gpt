@@ -2,14 +2,32 @@ components:
   schemas:
     GroupRequestBodyPut:
       type: object
-      required:
-        - subject
       properties:
+        remoteId:
+          type: string
+          description: The WhatsApp ID of the group to update
         subject:
           type: string
           description: The title of the group
+        description:
+          type: string
+          description: The description of the group
+        mimeType:
+          type: string
+          description: The MIME type of the group's new image
+        media:
+          type: string
+          description: The base64 string for the group's new image
+        withLabel:
+          type: string
+          description: The label to filter and update all groups containing it
       example:
-        title: Grupo de Vendas
+        remoteId: 1234567890@g.us
+        subject: Grupo de Vendas
+        description: Este é o grupo da equipe de vendas
+        mimeType: image/png
+        media: ey3910c04389c029...
+        withLabel: Vendas
     GroupRequestBody:
       type: object
       required:
@@ -117,6 +135,31 @@ tags:
               $ref: '#/components/schemas/Group'
       404:
         description: The group was not found
+  put:
+    summary: Update a group
+    tags: [Groups]
+    parameters:
+      - in: path
+        name: clientId
+        schema:
+          type: string
+        required: true
+        description: The client id
+    requestBody:
+     required: true
+     content:
+       application/json:
+         schema:
+           $ref: '#/components/schemas/GroupRequestBodyPut'
+    responses:
+      200:
+        description: The updated group
+        contens:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      404:
+        description: The group was not found
 /groups/{clientId}/{remoteId}:
   get:
     summary: Get a client's group by id
@@ -137,37 +180,6 @@ tags:
     responses:
       200:
         description: The requested group
-        contens:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Group'
-      404:
-        description: The group was not found
-  put:
-    summary: Update a client's group by id
-    tags: [Groups]
-    parameters:
-      - in: path
-        name: clientId
-        schema:
-          type: string
-        required: true
-        description: The client id
-      - in: path
-        name: remoteId
-        schema:
-          type: string
-        required: true
-        description: The remote id
-    requestBody:
-     required: true
-     content:
-       application/json:
-         schema:
-           $ref: '#/components/schemas/GroupRequestBodyPut'
-    responses:
-      200:
-        description: Group deleted
         contens:
           application/json:
             schema:
