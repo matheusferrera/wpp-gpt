@@ -24,7 +24,7 @@ components:
           description: An array of strings for wpp ids of each member
       example:
         title: Grupo de Vendas
-        participants: ["556187665432@us.c"]
+        participants: ["556187665432@c.us"]
     Group:
       type: object
       required:
@@ -199,3 +199,61 @@ tags:
               $ref: '#/components/schemas/Group'
       404:
         description: The group was not found
+        
+# /groups/labels/{clientId}/{remoteId}:
+#   get:
+#     summary: Get a client's group by id
+#     tags: [Groups]
+#     parameters:
+#       - in: path
+#         name: clientId
+#         schema:
+#           type: string
+#         required: true
+#         description: The client id
+#       - in: path
+#         name: remoteId
+#         schema:
+#           type: string
+#         required: true
+#         description: The remote id
+#     responses:
+#       200:
+#         description: The requested group
+#         contens:
+#           application/json:
+#             schema:
+#               $ref: '#/components/schemas/Group'
+#       404:
+#         description: The group was not found
+#   post:
+#     summary: Get a client's group by id
+#     tags: [Groups]
+#     parameters:
+#       - in: path
+#         name: clientId
+#         schema:
+#           type: string
+#         required: true
+#         description: The client id
+#       - in: path
+#         name: remoteId
+#         schema:
+#           type: string
+#         required: true
+#         description: The remote id
+#     requestBody:
+#      required: true
+#      content:
+#        application/json:
+#          schema:
+#            $ref: '#/components/schemas/GroupRequestBody'
+#     responses:
+#       200:
+#         description: The requested group
+#         contens:
+#           application/json:
+#             schema:
+#               $ref: '#/components/schemas/Group'
+#       404:
+#         description: The group was not found

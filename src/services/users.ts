@@ -23,7 +23,7 @@ const getTemplates = async (userId: string) => {
     try {
         let response;
         if (userId) {
-            response = await UserModel.find({ _id: userId }, { templates: 1 });
+            response = await TemplateModel.find({ userId: userId });
         } 
 
         return response;
@@ -47,13 +47,9 @@ const createUser = async (reqBody: IUser) => {
 
 const createTemplate = async (userId: string, reqBody: ITemplate) => {
     try {
-        const newTemplate = new TemplateModel(reqBody);
-        const savedTemplate = await UserModel.findOneAndUpdate(
-            { _id: userId },
-            { $push: { templates: newTemplate } },
-            { returnOriginal: false } // To return the updated document
-        );
-        return savedTemplate;
+        const newTemplate = new TemplateModel({...reqBody, userId});
+        await newTemplate.save()
+        return newTemplate;
     } catch (e: any) {
         console.log("[createTemplate ERROR] =>  ", e);
         throw e;

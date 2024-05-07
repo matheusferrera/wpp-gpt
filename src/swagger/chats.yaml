@@ -1,5 +1,30 @@
 components:
   schemas:
+    ChatResponseBody:
+      type: object
+      required:
+        - body
+        - type
+        - timestamp
+        - to
+      properties:
+        body:
+          type: string
+          description: The text or caption (image, video) of message
+        type:
+          type: string
+          description: The type of message
+        timestamp:
+          type: number
+          description: the timestamp of send message
+        to:
+          type: string
+          description: The remoteId recive`s message
+      example:
+        body: hello world!
+        type: image
+        timestamp: 1714997315
+        to: 5561987665432@us.g
     Chat:
       type: object
       required:
@@ -248,6 +273,6 @@ tags:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Chat'
+              $ref: '#/components/schemas/ChatResponseBody'
       500:
         description: Some server error
