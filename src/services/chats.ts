@@ -76,7 +76,6 @@ const getMessagesChats = async (clientId: string, wppNumber:string, limit: numbe
     }
 }
 
-
 const createChats = async (clientId: string, remoteId: string, message: string, mimeType?: string, media?: string) => {
     try {
         let response;
@@ -117,11 +116,68 @@ const createChats = async (clientId: string, remoteId: string, message: string, 
     }
 }
 
+const getLabels = async (clientId: string, remoteId: string) => {
+    try {
+        let response;
+        // const whatsapp = whatsappClients.get(clientId);
+        // const groupObj = await whatsapp.getChatById(remoteId);
+        // const group = groupObj as GroupChat;
+        // response = await group.getLabels();
+        response = await ChatsModel.find({ clientId: clientId, remoteId: remoteId });
+
+        return response;
+   
+    } catch (e: any) {
+        console.log("ERROR -> ", e);
+    }
+}
+
+const addLabels = async (clientId: string, remoteId: string, label: string) => {
+    try {
+        let response;
+        // const whatsapp = whatsappClients.get(clientId);
+        // const groupObj = await whatsapp.getChatById(remoteId);
+        // const group = groupObj as GroupChat;
+        response = await ChatsModel.findOneAndUpdate(
+            { clientId: clientId, remoteId: remoteId }, 
+            { $push: { labels: label } },
+            { upsert: true, new: true }
+        );
+
+        return response;
+   
+    } catch (e: any) {
+        console.log("ERROR -> ", e);
+    }
+}
+
+const deleteLabels = async (clientId: string, remoteId: string, label: string) => {
+    try {
+        let response;
+        // const whatsapp = whatsappClients.get(clientId);
+        // const groupObj = await whatsapp.getChatById(remoteId);
+        // const group = groupObj as GroupChat;
+        // response = await group.changeLabels([labelId]);
+        response = await ChatsModel.deleteOne(
+            { clientId: clientId, remoteId: remoteId },
+            { $pull: { labels: label } },
+        );
+
+        return response;
+   
+    } catch (e: any) {
+        console.log("ERROR -> ", e);
+    }
+}
+
 
 const ChatService = {
     getChats,
     getMessagesChats,
-    createChats
+    createChats,
+    getLabels,
+    addLabels,
+    deleteLabels
 }
 
 

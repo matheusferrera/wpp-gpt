@@ -5,6 +5,7 @@ const chatSchema: Schema = new Schema({
     clientId: { type: String, required: true, unique: false },
     remoteId: { type: String, required: true, unique: false },
     isGroup: { type: Boolean, required: true, unique: false, default: false },
+    labels: { type: Array, required: false, unique: false },
     messages: [messageSchema], // Nested array of messages
 });
 

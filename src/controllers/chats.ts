@@ -40,11 +40,50 @@ const createChats = async(req: Request, res: Response) => {
     }
 }
 
+const getLabels = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const remoteId = req.params.remoteId;
+        const response = await ChatService.getLabels(clientId, remoteId);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
 
-const MessageController = {
+const addLabels = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const remoteId = req.params.remoteId;
+        const label = req.body.label;
+        const response = await ChatService.addLabels(clientId, remoteId, label);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
+const deleteLabels = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.params.clientId;
+        const remoteId = req.params.remoteId;
+        const labelId = req.body.labelId;
+        const response = await ChatService.deleteLabels(clientId, remoteId, labelId);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
+
+const ChatController = {
     getChats,
     getMessagesChats,
     createChats,
+    getLabels,
+    addLabels,
+    deleteLabels
 }
 
-export default MessageController
+
+export default ChatController;

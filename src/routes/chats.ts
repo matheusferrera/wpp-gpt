@@ -4,14 +4,17 @@ import ChatController from "../controllers/chats";
 const router: Router = express.Router();
 
 
-// GET /chats/{clientId}
+// GET /chats
 router.get('/:clientId', ChatController.getChats);
-
-// GET /chats/{clientId}/{remoteId}
 router.get('/getMessage/:clientId/:wppNumber', ChatController.getMessagesChats);
+router.get('/labels/:clientId/:remoteId', ChatController.getLabels);
 
 // POST /chats
 router.post('/sendMessage/', ChatController.createChats);
+router.post('/labels/:clientId/:remoteId', ChatController.addLabels);
+
+// DELETE /chats
+router.delete('/labels/:clientId/:remoteId', ChatController.deleteLabels);
 
 
 export default router;
