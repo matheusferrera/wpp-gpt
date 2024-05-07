@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { Client, LocalAuth } from "whatsapp-web.js";
+import { Client, LocalAuth, Chat } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -85,7 +85,7 @@ import { MongoStore } from "wwebjs-mongo";
 import mongoose from "mongoose";
 
 // MongoDB Models
-import Message from "./models/Message";
+import MessageModel from "./models/Message";
 import User from "./models/User";
 import ClientModel from "./models/Client";
 import ChatModel from "./models/Chat";
@@ -99,7 +99,7 @@ db.once("open", async () => {
   console.log("\x1b[36m[DB] => Server connected to MongoDB\x1b[0m");
 
   // Create a change stream on the Message collection
-  const changeStream = Message.watch();
+  const changeStream = MessageModel.watch();
 
   // // Get all clients from DB
   const savedClients = await ClientModel.find();
@@ -201,9 +201,10 @@ async function initializeWhatsAppClient(clientId: any) {
 async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
   
   whatsappClient.on("message_create", async (message) => {
-    console.log(`[snifferWhatsAppClient] => Send message - ${clientId}`);
 
     if(message.fromMe) {
+      console.log(`[snifferWhatsAppClient] => Sent message - ${clientId}`);
+
       // get last N chats
       const chats = await whatsappClient.getChats();
       const n = 3;
@@ -220,6 +221,7 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
       io.to(clientId).emit("last-chats", lastNChats);
       io.to(clientId).emit("last-messages", last10MessageActiveChat);
     } else {
+      console.log(`[snifferWhatsAppClient] => Received message - ${clientId}`);
       io.to(clientId).emit("message-received", message);
     }
 
@@ -228,11 +230,12 @@ async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
     // Ignore status messages
     if (userId !== "status@broadcast") {
       // Create a new message document
-      const newMessage = new Message(message);
+      const newMessage = new MessageModel(message);
+      const messageChat: Chat = await message.getChat();
  
       // Find the chat by clientId and save the message document to the collection
       ChatModel.findOneAndUpdate(
-        { remoteId: message.id.remote, clientId: clientId },
+        { remoteId: message.id.remote, clientId: clientId, isGroup: messageChat.isGroup },
         { $push: { messages: newMessage } },
         { upsert: true, new: true }
       )
