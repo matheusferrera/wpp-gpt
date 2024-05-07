@@ -51,27 +51,11 @@ const createGroups = async (clientId: string, title: string, participants: Array
 const getLabels = async (clientId: string, remoteId: string) => {
     try {
         let response;
-        const whatsapp = whatsappClients.get(clientId);
-
-        const groupObj = await whatsapp.getChatById(remoteId);
-        const group = groupObj as GroupChat;
-        response = await group.getLabels();
-
-        return response;
-   
-    } catch (e: any) {
-        console.log("ERROR -> ", e);
-    }
-}
-
-const addLabels = async (clientId: string, remoteId: string, label: Array<string>) => {
-    try {
-        let response;
-        const whatsapp = whatsappClients.get(clientId);
-
-        const groupObj = await whatsapp.getChatById(remoteId);
-        const group = groupObj as GroupChat;
-        response = await group.changeLabels(label);
+        // const whatsapp = whatsappClients.get(clientId);
+        // const groupObj = await whatsapp.getChatById(remoteId);
+        // const group = groupObj as GroupChat;
+        // response = await group.getLabels();
+        response = await GroupModel.find({ clientId: clientId, remoteId: remoteId });
 
         return response;
    
@@ -80,21 +64,17 @@ const addLabels = async (clientId: string, remoteId: string, label: Array<string
     }
 }
 
-const createLabels = async (clientId: string, remoteId: string, labelData: any) => {
+const addLabels = async (clientId: string, remoteId: string, label: string) => {
     try {
         let response;
-        const whatsapp = whatsappClients.get(clientId);
-        const label: Label = {
-            id: labelData.id,
-            name: labelData.name,
-            hexColor: labelData.hexColor,
-            getChats: async () => {
-                return whatsapp.getChatsByLabelId(labelData.id);
-            }
-        };
-        response = label;
-        // response = await new Label(whatsapp, labelData);
-        // response = await (whatsapp, labelData) as unknown as Label;
+        // const whatsapp = whatsappClients.get(clientId);
+        // const groupObj = await whatsapp.getChatById(remoteId);
+        // const group = groupObj as GroupChat;
+        response = await GroupModel.findOneAndUpdate(
+            { clientId: clientId, remoteId: remoteId }, 
+            { $push: { labels: label } },
+            { upsert: true, new: true }
+        );
 
         return response;
    
@@ -103,14 +83,17 @@ const createLabels = async (clientId: string, remoteId: string, labelData: any) 
     }
 }
 
-const deleteLabels = async (clientId: string, remoteId: string, labelId: string) => {
+const deleteLabels = async (clientId: string, remoteId: string, label: string) => {
     try {
         let response;
-        const whatsapp = whatsappClients.get(clientId);
-
-        const groupObj = await whatsapp.getChatById(remoteId);
-        const group = groupObj as GroupChat;
-        response = await group.changeLabels([labelId]);
+        // const whatsapp = whatsappClients.get(clientId);
+        // const groupObj = await whatsapp.getChatById(remoteId);
+        // const group = groupObj as GroupChat;
+        // response = await group.changeLabels([labelId]);
+        response = await GroupModel.deleteOne(
+            { clientId: clientId, remoteId: remoteId },
+            { $pull: { labels: label } },
+        );
 
         return response;
    
@@ -164,7 +147,6 @@ const GroupService = {
     getGroups,
     createGroups,
     getLabels,
-    createLabels,
     addLabels,
     deleteLabels,
     updateGroups,

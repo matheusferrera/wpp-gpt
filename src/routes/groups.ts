@@ -13,9 +13,6 @@ router.post('/:clientId', GroupController.createGroups);
 // GET /groups/{clientId}/{remoteId}
 router.get('/:clientId/:remoteId', GroupController.getGroups);
 
-// POST /groups/labels/{clientId}
-router.post('/labels/:clientId', GroupController.createLabels);
-
 // GET /groups/labels/{clientId}/{remoteId}
 router.get('/labels/:clientId/:remoteId', GroupController.getLabels);
 
