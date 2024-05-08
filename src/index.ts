@@ -15,6 +15,7 @@ import chats from "./routes/chats";
 import users from "./routes/users";
 import groups from "./routes/groups";
 import contacts from "./routes/contacts";
+import templates from "./routes/templates";
 
 // Sockets
 import { initializeSocket } from "./sockets/sockets";
@@ -72,6 +73,7 @@ app.use('/chats', chats);
 app.use('/users', users);
 app.use('/groups', groups);
 app.use('/contacts', contacts);
+app.use('/template', templates)
 
 const server = http.createServer(app);
 const io = new Server(server, {

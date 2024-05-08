@@ -11,31 +11,10 @@ const getUsers = async(req: Request, res: Response) => {
     }
 }
 
-const getTemplates = async(req: Request, res: Response) => {
-    try {
-        const userId = req.params.userId;
-        const response = await UserService.getTemplates(userId);
-        res.send(response);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-}
-
 const createUsers = async(req: Request, res: Response) => {
     try {
         const reqBody = req.body;
         const response = await UserService.createUser(reqBody);
-        res.send(response);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-}
-
-const createTemplates = async(req: Request, res: Response) => {
-    try {
-        const userId = req.params.userId;
-        const reqBody = req.body;
-        const response = await UserService.createTemplate(userId, reqBody);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());
@@ -65,9 +44,7 @@ const deleteUsers = async(req: Request, res: Response) => {
 
 const UsersController = {
     getUsers,
-    getTemplates,
     createUsers,
-    createTemplates,
     changeUsers,
     deleteUsers
 }

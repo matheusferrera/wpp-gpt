@@ -19,21 +19,6 @@ const getUsers = async (userId: string) => {
     }
 }
 
-const getTemplates = async (userId: string) => {
-    try {
-        let response;
-        if (userId) {
-            response = await TemplateModel.find({ userId: userId });
-        } 
-
-        return response;
-
-    } catch (e: any) {
-        console.log("[getUser ERROR] =>  ", e);
-        throw e;
-    }
-}
-
 const createUser = async (reqBody: IUser) => {
     try {
         const newUser = new UserModel(reqBody);
@@ -45,16 +30,6 @@ const createUser = async (reqBody: IUser) => {
     }
 }
 
-const createTemplate = async (userId: string, reqBody: ITemplate) => {
-    try {
-        const newTemplate = new TemplateModel({...reqBody, userId});
-        await newTemplate.save()
-        return newTemplate;
-    } catch (e: any) {
-        console.log("[createTemplate ERROR] =>  ", e);
-        throw e;
-    }
-}
 
 const changeUsers = async (userId: string) => {
     try {
@@ -80,9 +55,7 @@ const deleteUsers = async (userId: string) => {
 
 const UserService = {
     getUsers,
-    getTemplates,
     createUser,
-    createTemplate,
     changeUsers,
     deleteUsers,
 }
