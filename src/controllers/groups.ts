@@ -76,6 +76,18 @@ const updateGroups = async(req: Request, res: Response) => {
     }
 }
 
+const getInvites = async(req: Request, res: Response) => {
+    try {
+        const clientId = req.body.clientId;
+        const remoteId = req.body.remoteId;
+        const label = req.body.label;
+        const response = await GroupService.getInvites(clientId, remoteId, label);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
 const deleteGroups = async(req: Request, res: Response) => {
     try {
         const clientId = req.params.clientId;
@@ -95,6 +107,7 @@ const GroupController = {
     addLabels,
     deleteLabels,
     updateGroups,
+    getInvites,
     deleteGroups
 }
 

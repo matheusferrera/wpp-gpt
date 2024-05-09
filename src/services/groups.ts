@@ -158,6 +158,43 @@ const updateGroups = async (clientId: string, remoteId?: string, subject?: strin
     }
 }
 
+const getInvites = async (clientId: string, remoteId?: string, label?: string) => {
+    try {
+        let response;
+        if (clientId && remoteId) {
+            const whatsapp = whatsappClients.get(clientId);
+            const groupObj = await whatsapp.getChatById(remoteId);
+            const group = groupObj as GroupChat;
+            response = await group.getInviteCode();
+
+        } else if (clientId && label) {
+            const whatsapp = whatsappClients.get(clientId);
+            const groupChatsWithLabel = await ChatModel.find(
+                { 
+                    clientId: clientId, 
+                    labels: { $elemMatch: { $eq: label } } 
+                }
+            );
+
+            for (let index = 0; index < groupChatsWithLabel.length; index++) {
+                const element = groupChatsWithLabel[index];
+                const groupObj = await whatsapp.getChatById(element.remoteId);
+                const group = groupObj as GroupChat;
+                const participantsQuantity = group.participants.length;
+                const MAX_PARTICIPANTS_ALLOWED = 1024;
+
+                if (participantsQuantity < MAX_PARTICIPANTS_ALLOWED) {
+                    response = await group.getInviteCode();
+                    break;
+                }
+            }
+        }
+        return response;
+    } catch (e: any) {
+        console.log("ERROR -> ", e);
+    }
+}
+
 const deleteGroups = async (clientId: string, remoteId: string) => {
     try {
         let response;
@@ -186,6 +223,7 @@ const GroupService = {
     addLabels,
     deleteLabels,
     updateGroups,
+    getInvites,
     deleteGroups
 }
 

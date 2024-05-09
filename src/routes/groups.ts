@@ -12,6 +12,7 @@ router.get('/labels/:clientId/:remoteId', GroupController.getLabels);
 // POST /groups
 router.post('/:clientId', GroupController.createGroups);
 router.post('/labels/:clientId/:remoteId', GroupController.addLabels);
+router.get('/invites/get', GroupController.getInvites);
 
 // PUT /groups
 router.put('/:clientId', GroupController.updateGroups);
