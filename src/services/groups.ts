@@ -103,7 +103,7 @@ const deleteLabels = async (clientId: string, remoteId: string, label: string) =
     }
 }
 
-const updateGroups = async (clientId: string, remoteId?: string, subject?: string, description?: string, mimeType?: string, media?: string, withLabel?: string) => {
+const updateGroups = async (clientId: string, remoteId?: string, subject?: string, description?: string, mimeType?: string, media?: string, withLabel?: string, adminsOnly?: boolean) => {
     try {
         let response;
         if (clientId && remoteId) {
@@ -119,6 +119,10 @@ const updateGroups = async (clientId: string, remoteId?: string, subject?: strin
             if (mimeType && media) {
                 const pictureMedia = new MessageMedia(mimeType, media);
                 response = await group.setPicture(pictureMedia);
+            }
+            if (adminsOnly) {
+                response = await group.setInfoAdminsOnly();
+                response = await group.setMessagesAdminsOnly();
             }
         } else if (clientId && withLabel) {
             const whatsapp = whatsappClients.get(clientId);
@@ -141,6 +145,10 @@ const updateGroups = async (clientId: string, remoteId?: string, subject?: strin
                 if (mimeType && media) {
                     const pictureMedia = new MessageMedia(mimeType, media);
                     response = await group.setPicture(pictureMedia);
+                }
+                if (adminsOnly) {
+                    response = await group.setInfoAdminsOnly();
+                    response = await group.setMessagesAdminsOnly();
                 }
             });
         }
