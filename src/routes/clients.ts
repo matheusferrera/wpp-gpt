@@ -6,20 +6,16 @@ const router: Router = express.Router();
 
 // GET /clients
 router.get('/', ClientController.getClients);
+router.get('/:clientId', ClientController.getClients);
 
 // POST /clients
 router.post('/', ClientController.createClients);
-
-// POST /clients/activeClient/{clientId}
 router.post('/activeClient/:clientId', ClientController.activeClients);
 
-// GET /clients/{clientId}
-router.get('/:clientId', ClientController.getClients);
-
-// PUT /clients/{clientId}
+// PUT /clients
 router.put('/:clientId', ClientController.changeClients);
 
-// DELETE /clients/{clientId}
+// DELETE /clients
 router.delete('/:clientId', ClientController.deleteClients);
 
 

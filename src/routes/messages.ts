@@ -4,19 +4,15 @@ import MessageController from "../controllers/messages";
 const router: Router = express.Router();
 
 
-// GET /messages/{clientId}
+// GET /messages
 router.get('/:clientId', MessageController.getMessages);
-
-// GET /messages/{clientId}/{userId}
 router.get('/:clientId/:userId', MessageController.getMessages);
 
 // POST /messages
 router.post('/', MessageController.createMessages);
 
-// DELETE /messages/{clientId}
+// DELETE /messages
 router.delete('/:clientId', MessageController.deleteMessages);
-
-// DELETE /messages/{clientId}/{userId}
 router.delete('/:clientId/:userId', MessageController.deleteMessages);
 
 
