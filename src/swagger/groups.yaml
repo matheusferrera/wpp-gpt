@@ -21,6 +21,9 @@ components:
         withLabel:
           type: string
           description: The label to filter and update all groups containing it
+        adminsOnly:
+          type: boolean
+          description: Decide if only admins can send messages and change group info
       example:
         remoteId: 1234567890@g.us
         subject: Grupo de Vendas
@@ -28,6 +31,7 @@ components:
         mimeType: image/png
         media: ey3910c04389c029...
         withLabel: Vendas
+        adminsOnly: true
     GroupRequestBody:
       type: object
       required:
