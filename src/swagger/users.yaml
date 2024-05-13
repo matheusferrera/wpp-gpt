@@ -1,5 +1,6 @@
 components:
   schemas:
+
     User:
       type: object
       required:
@@ -31,9 +32,11 @@ components:
         email: fulano@email.com
         birthDate: 1970-12-06
         clients: [{"userId": "7722a9852a73e64431289e6e", "wppNumber": "5561982501719", "name": "Super Loja"}]
+
 tags:
   name: Users
   description: Operations with users
+
 /users:
   get:
     summary: Lists all the users
@@ -65,7 +68,7 @@ tags:
               $ref: '#/components/schemas/User'
       500:
         description: Some server error
-/user/{userId}:
+/users/{userId}:
   get:
     summary: Get the user by id
     tags: [Users]

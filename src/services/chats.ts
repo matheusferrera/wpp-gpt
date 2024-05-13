@@ -93,8 +93,14 @@ const createChats = async (clientId: string, remoteId: string, message: string, 
 
         if(mimeType && media) {
             const messageMedia = new MessageMedia(mimeType, media);
-            await whatsapp.sendMessage(remoteId, messageMedia);
-            response = {"detail": "message sent"};
+            const respMessage = await whatsapp.sendMessage(formatedNumber, messageMedia, {"sendAudioAsVoice": true, "caption": message});
+            let responseFormated = {
+                body: respMessage.body,
+                type: respMessage.type,
+                timestamp: respMessage.timestamp,
+                to: respMessage.to,
+            }
+            response = responseFormated;
         }
         else {
          

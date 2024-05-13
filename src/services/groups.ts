@@ -36,7 +36,12 @@ const createGroups = async (clientId: string, title: string, participants: Array
     try {
         let response;
         const whatsapp = whatsappClients.get(clientId);
-        response = await whatsapp.createGroup(title, participants);
+
+        const formatedNumbers = await getFormattedNumbers(participants, whatsapp)
+        console.log("PARTICIPANTS -> ", formatedNumbers)
+
+
+        response = await whatsapp.createGroup(title, formatedNumbers);
 
         const groupId = response.gid._serialized;
         const groupObj = await whatsapp.getChatById(groupId);
@@ -46,6 +51,7 @@ const createGroups = async (clientId: string, title: string, participants: Array
    
     } catch (e: any) {
         console.log("ERROR -> ", e);
+        throw e
     }
 }
 
@@ -228,3 +234,14 @@ const GroupService = {
 }
 
 export default GroupService;
+
+
+
+async function getFormattedNumbers(remoteIds:Array<String>, whatsapp: any) {
+    // Supondo que whatsapp.getNumberId(remoteId) retorne uma Promise com o número formatado
+    const formattedNumbers = await Promise.all(remoteIds.map(async (remoteId: any) => {
+        const formattedNumber = await whatsapp.getNumberId(remoteId);
+        return formattedNumber._serialized;
+    }));
+    return formattedNumbers;
+}
