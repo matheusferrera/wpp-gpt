@@ -43,6 +43,26 @@ components:
       example:
         title: Grupo de Vendas
         participants: ["556187665432@c.us"]
+    GroupRequestBodyInvite:
+      type: object
+      required:
+        - clientId
+        - remoteId
+        - label
+      properties:
+        clientId:
+          type: string
+          description: The client's ID
+        remoteId:
+          type: string
+          description: The group's ID
+        label:
+          type: string
+          description: The group's label to filter
+      example:
+        clientId: 66edf829x
+        remoteId: 1234567890@g.us
+        label: Vendas
     Group:
       type: object
       required:
@@ -160,6 +180,7 @@ tags:
               $ref: '#/components/schemas/Group'
       404:
         description: The group was not found
+
 /groups/{clientId}/{remoteId}:
   get:
     summary: Get a client's group by id
@@ -212,60 +233,94 @@ tags:
       404:
         description: The group was not found
         
-# /groups/labels/{clientId}/{remoteId}:
-#   get:
-#     summary: Get a client's group by id
-#     tags: [Groups]
-#     parameters:
-#       - in: path
-#         name: clientId
-#         schema:
-#           type: string
-#         required: true
-#         description: The client id
-#       - in: path
-#         name: remoteId
-#         schema:
-#           type: string
-#         required: true
-#         description: The remote id
-#     responses:
-#       200:
-#         description: The requested group
-#         contens:
-#           application/json:
-#             schema:
-#               $ref: '#/components/schemas/Group'
-#       404:
-#         description: The group was not found
-#   post:
-#     summary: Get a client's group by id
-#     tags: [Groups]
-#     parameters:
-#       - in: path
-#         name: clientId
-#         schema:
-#           type: string
-#         required: true
-#         description: The client id
-#       - in: path
-#         name: remoteId
-#         schema:
-#           type: string
-#         required: true
-#         description: The remote id
-#     requestBody:
-#      required: true
-#      content:
-#        application/json:
-#          schema:
-#            $ref: '#/components/schemas/GroupRequestBody'
-#     responses:
-#       200:
-#         description: The requested group
-#         contens:
-#           application/json:
-#             schema:
-#               $ref: '#/components/schemas/Group'
-#       404:
-#         description: The group was not found
+/groups/labels/{clientId}/{remoteId}:
+  get:
+    summary: Get a group's labels
+    tags: [Groups]
+    parameters:
+      - in: path
+        name: clientId
+        schema:
+          type: string
+        required: true
+        description: The client id
+      - in: path
+        name: remoteId
+        schema:
+          type: string
+        required: true
+        description: The remote id
+    responses:
+      200:
+        description: The group's labels
+        contens:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      404:
+        description: The group was not found
+  post:
+    summary: Add label to group
+    tags: [Groups]
+    parameters:
+      - in: path
+        name: clientId
+        schema:
+          type: string
+        required: true
+        description: The client id
+      - in: path
+        name: remoteId
+        schema:
+          type: string
+        required: true
+        description: The remote id
+    requestBody:
+     required: true
+     content:
+       application/json:
+         schema:
+           $ref: '#/components/schemas/GroupRequestBody'
+    responses:
+      200:
+        description: The label was added
+      404:
+        description: The group was not found
+  delete:
+    summary: Delete label from a group
+    tags: [Groups]
+    parameters:
+      - in: path
+        name: clientId
+        schema:
+          type: string
+        required: true
+        description: The client id
+      - in: path
+        name: remoteId
+        schema:
+          type: string
+        required: true
+        description: The remote id
+    responses:
+      200:
+        description: Label deleted from group
+      404:
+        description: The group was not found
+
+/groups/invites/get:
+  post:
+    summary: Get invite link for a group
+    tags: [Groups]
+    requestBody:
+     required: true
+     content:
+       application/json:
+         schema:
+           $ref: '#/components/schemas/GroupRequestBodyInvite'
+    responses:
+      200:
+        description: The link is returned
+      404:
+        description: The group was not found
+  
