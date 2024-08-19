@@ -20,7 +20,7 @@ components:
           type: string
           description: Contact's name
       example:
-        userId: 6611a9852a73e64431289e5d
+        clientId: 6611a9852a73e64431289e5d
         wppNumber: "556192045128"
         name: Fulano da Silva
 tags:
@@ -45,27 +45,27 @@ tags:
               $ref: '#/components/schemas/Contact'
       500:
         description: Some server error
-/contacts/{userId}:
+/contacts/{clientId}:
   get:
-    summary: Get all contacts by the userId
+    summary: Get all contacts by the clientId
     tags: [Contacts]
     parameters:
       - in: path
-        name: userId
+        name: clientId
         schema:
           type: string
         required: true
         description: The user id
     responses:
       200:
-        description: The contact response by userId
+        description: The contact response by clientId
         contens:
           application/json:
             schema:
               $ref: '#/components/schemas/Contact'
       404:
         description: The contact was not found
-/contacts/{userId}/{wppNumber}:
+/contacts/{clientId}/{wppNumber}:
   get:
     summary: Get the contact by wppNumber
     tags: [Contacts]
@@ -77,11 +77,11 @@ tags:
         required: true
         description: The contact's wppNumber
       - in: path
-        name: userId
+        name: clientId
         schema:
           type: string
         required: true
-        description: userId friend of wppNumber  
+        description: clientId friend of wppNumber  
     responses:
       200:
         description: The contact response by id
@@ -102,11 +102,11 @@ tags:
        required: true
        description: The contact's wppNumber
      - in: path
-       name: userId
+       name: clientId
        schema:
          type: string
        required: true
-       description: userId frind of wppNumber  
+       description: clientId frind of wppNumber  
    requestBody:
      required: true
      content:
@@ -135,11 +135,11 @@ tags:
         required: true
         description: The contact's wppNumber
       - in: path
-        name: userId
+        name: clientId
         schema:
          type: string
         required: true
-        description: userId frind of wppNumber 
+        description: clientId friend of wppNumber 
     responses:
       200:
         description: The contact was deleted

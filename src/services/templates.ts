@@ -1,16 +1,15 @@
-import UserModel, { IUser } from "../models/User";
 import TemplateModel, { ITemplate } from "../models/Template";
 import TemplateMessageModel, { ITemplateMessage } from "../models/TemplateMessages";
 import { MessageMedia } from "whatsapp-web.js";
 import { whatsappClients } from "..";
 
-const getTemplates = async (userId: string, templateName: string) => {
+const getTemplates = async (templateId: string, templateName: string) => {
     try {
         let response;
-        if (userId && !templateName) {
-            response = await TemplateModel.find({ userId: userId });
-        } else if (userId && templateName) {
-            response = await TemplateModel.find({ userId: userId, 'template.name': templateName })
+        if (templateId && !templateName) {
+            response = await TemplateModel.find({ templateId: templateId });
+        } else if (templateId && templateName) {
+            response = await TemplateModel.find({ templateId: templateId, 'template.name': templateName })
         }
 
         return response;
@@ -22,9 +21,9 @@ const getTemplates = async (userId: string, templateName: string) => {
 }
 
 
-const createTemplate = async (userId: string, reqBody: ITemplate) => {
+const createTemplate = async (templateId: string, reqBody: ITemplate) => {
     try {
-        const newTemplate = new TemplateModel({...reqBody, userId});
+        const newTemplate = new TemplateModel({...reqBody, templateId});
         await newTemplate.save()
         return newTemplate;
     } catch (e: any) {
@@ -50,7 +49,7 @@ const sendMessageTemplate = async (clientId: string, wppNumber: string, template
 
 
         const newTemplateMessage = new TemplateMessageModel({...templateBody, clientId, remoteId});
-        await newTemplateMessage.save()
+        // await newTemplateMessage.save()
         
         const content = newTemplateMessage.content as ITemplateMessage['content'];
         let response
@@ -60,8 +59,9 @@ const sendMessageTemplate = async (clientId: string, wppNumber: string, template
             response = await whatsapp.sendMessage(remoteId, messageMedia, {"sendAudioAsVoice": true, "caption": content.message});
         }
         else {
-
+            console.log("Tentando enviar mensagem ->!!!")
             response = await whatsapp.sendMessage(remoteId, content.message);
+            console.log("REsPONSE  ->", response)
         }
         
         newTemplateMessage.content
@@ -102,11 +102,35 @@ const analyzeMessageTemplate = async (clientId: string, wppNumber: string, templ
     }
 }
 
+const changeTemplates = async (templateId: string, templateBody: object) => {
+    try {
+        const response = await TemplateModel.findOneAndUpdate({ _id: templateId }, templateBody);
+        return response;
+
+    } catch (e: any) {
+        console.log("[changeUser ERROR] =>  ", e);
+        throw e;
+    }
+}
+
+
+const deleteTemplates = async (templateId: string) => {
+    try {
+        const response = await TemplateModel.deleteOne({ _id: templateId });
+        return response;
+
+    } catch (e: any) {
+        console.log("ERROR -> ", e);
+    }
+}
+
 const TemplatesService = {
     getTemplates,
     createTemplate,
     sendMessageTemplate,
-    analyzeMessageTemplate
+    analyzeMessageTemplate,
+    changeTemplates,
+    deleteTemplates
 }
 
 export default TemplatesService; 

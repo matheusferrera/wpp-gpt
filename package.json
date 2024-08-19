@@ -35,7 +35,7 @@
     "supertest": "^6.3.4",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
-    "whatsapp-web.js": "^1.23.0",
+    "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#webpack-exodus",
     "wwebjs-mongo": "^1.1.0"
   },
   "jest": {

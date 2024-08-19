@@ -120,6 +120,51 @@ tags:
               $ref: '#/components/schemas/TemplateResp'
       404:
         description: The user was not found
+/template/{templateId}:
+  put:
+    summary: change the template schema by templateID
+    tags: [Template]
+    parameters:
+      - in: path
+        name: templateId
+        schema:
+          type: string
+        required: true
+        description: The template id
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TemplateReq'
+    responses:
+      200:
+        description: The template response by userId
+        contens:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateResp'
+      404:
+        description: The user was not found
+  delete:
+    summary: delete a template schema
+    tags: [Template]
+    parameters:
+      - in: path
+        name: templateId
+        schema:
+          type: string
+        required: true
+        description: The user id
+    responses:
+      200:
+        description: The user response by id
+        contens:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateResp'
+      404:
+        description: The user was not found
 /template/{userId}/{templateName}:
   get:
     summary: Get the templates schema by template name

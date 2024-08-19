@@ -49,9 +49,11 @@ const getMessagesChats = async (clientId: string, wppNumber:string, limit: numbe
         formatedNumber = formatedNumber._serialized
         await whatsapp.interface.openChatWindow(formatedNumber)
         const chatInstance = await whatsapp.getChatById(formatedNumber)
+
+        console.log("QUERY -> LIMIT - ", limit, "page -> ", page) 
         
         //set a lot messages and returns oldest messages first
-        const messages = await chatInstance.fetchMessages({limit: 9999999})
+        const messages = await chatInstance.fetchMessages({limit: limit})
         const init = page * limit
         const final = init + limit
 

@@ -34,7 +34,6 @@ const changeUsers = async(req: Request, res: Response) => {
 const deleteUsers = async(req: Request, res: Response) => {
     try {
         const userId = req.params.userId;
-        console.log("DELETE -> ", userId);
         const response = await UserService.deleteUsers(userId);
         res.send(response);
     } catch (e: any) {

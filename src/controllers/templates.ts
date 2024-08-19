@@ -3,9 +3,9 @@ import TemplatesService from "../services/templates";
 
 const getTemplates = async(req: Request, res: Response) => {
     try {
-        const userId = req.params.userId;
+        const templateId = req.params.templateId;
         const templateName = req.params.templateName
-        const response = await TemplatesService.getTemplates(userId, templateName);
+        const response = await TemplatesService.getTemplates(templateId, templateName);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());
@@ -14,9 +14,9 @@ const getTemplates = async(req: Request, res: Response) => {
 
 const createTemplates = async(req: Request, res: Response) => {
     try {
-        const userId = req.params.userId;
+        const templateId = req.params.templateId;
         const reqBody = req.body;
-        const response = await TemplatesService.createTemplate(userId, reqBody);
+        const response = await TemplatesService.createTemplate(templateId, reqBody);
         res.send(response);
     } catch (e: any) {
         res.status(500).send(e.toString());
@@ -48,11 +48,34 @@ const analyzeMessageTemplate = async(req: Request, res: Response) => {
     }
 }
 
+const changeTemplates = async(req: Request, res: Response) => {
+    try {
+        const templateId = req.params.templateId;
+        const templateBody = req.body
+        const response = await TemplatesService.changeTemplates(templateId, templateBody);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
+const deleteTemplates = async(req: Request, res: Response) => {
+    try {
+        const templateId = req.params.templateId;
+        const response = await TemplatesService.deleteTemplates(templateId);
+        res.send(response);
+    } catch (e: any) {
+        res.status(500).send(e.toString());
+    }
+}
+
 const TemplatesController = {
     getTemplates,
     createTemplates,
     sendMessageTemplate,
-    analyzeMessageTemplate
+    analyzeMessageTemplate,
+    changeTemplates,
+    deleteTemplates
 }
 
 export default TemplatesController;

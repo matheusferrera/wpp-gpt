@@ -4,97 +4,96 @@ import { MessageMedia } from "whatsapp-web.js";
 import { whatsappClients } from "..";
 
 const getMessages = async (clientId: string, userId: string) => {
-    try {
-        let response;
-        if(clientId && userId){
-            response = await UserModel.find({ clientId: clientId, userId: userId });
-        } else if(clientId){
-            response = await UserModel.find({ clientId: clientId });
-        } else {
-            response = await UserModel.find();
-        }
-        
-        return response;
-   
-    } catch (e: any) {
-        console.log("ERROR -> ", e);
+  try {
+    let response;
+    if (clientId && userId) {
+      response = await UserModel.find({ clientId: clientId, userId: userId });
+    } else if (clientId) {
+      response = await UserModel.find({ clientId: clientId });
+    } else {
+      response = await UserModel.find();
     }
-}
 
-const createMessages = async (clientId: string, remoteId: string, userId: string, message: string, mimeType?: string, media?: string, isTemplate?: boolean, template?: any) => {
-    try {
-        let response;
-        if(isTemplate && template) {
-            const whatsapp = whatsappClients.get(clientId);
-            response = await whatsapp.sendMessage(remoteId, template.text);
+    return response;
+  } catch (e: any) {
+    console.log("ERROR -> ", e);
+  }
+};
 
-            // update counter
-            response = await UserModel.findOneAndUpdate(
-                { 
-                    _id: userId,
-                    'templates._id': template._id // Match the template within the array
-                },
-                { 
-                    $inc: { 'templates.$[elem].count': 1 } // Increment count within the matched template
-                },
-                { 
-                    returnOriginal: false, // To return the updated document
-                    arrayFilters: [{ 'elem._id': template._id }] // Filter array element to update
-                }
-            );
-
-            // const newMessageId = response.id.id;
-            // const filter = { clientId: clientId, remoteId: userId, 'messages.id.id': newMessageId };
-            // const update = { $set: { 'messages.$.isTemplate': true, 'messages.$.template': template } }; 
-            // const options = { upsert: false, new: true };
-
-            // setTimeout(async () => {
-            //     try {
-            //         response = await ChatModel.findOneAndUpdate(filter, update, options);
-            //     } catch (error: any) {
-            //         console.error("ERROR -> ", error);
-            //     }
-            // }, 2000);
+const createMessages = async (
+  clientId: string,
+  remoteId: string,
+  userId: string,
+  message: string,
+  mimeType?: string,
+  media?: string,
+  isTemplate?: boolean,
+  template?: any
+) => {
+  try {
+    let response;
+    if (isTemplate && template) {
+      const whatsapp = whatsappClients.get(clientId);
+      //   response = await whatsapp.sendMessage(remoteId, template.text);
+      console.log("RESPONSE MESSAGE -> ", response);
+      // update counter
+      response = await UserModel.findOneAndUpdate(
+        {
+          _id: userId,
+          "templates._id": template._id, // Match the template within the array
+        },
+        {
+          $inc: { "templates.$[elem].count": 1 }, // Increment count within the matched template
+        },
+        {
+          returnOriginal: false, // To return the updated document
+          arrayFilters: [{ "elem._id": template._id }], // Filter array element to update
         }
-        else if(mimeType && media) {
-            const messageMedia = new MessageMedia(mimeType, media);
-            const whatsapp = whatsappClients.get(clientId);
-            response = await whatsapp.sendMessage(userId, messageMedia);
-        }
-        else {
-            const whatsapp = whatsappClients.get(clientId);
-            response = await whatsapp.sendMessage(userId, message);
-        }
+      );
 
-        return response;
-   
-    } catch (e: any) {
-        console.log("ERROR -> ", e);
+      console.log("RESPONSE -> ", response);
+    } else if (mimeType && media) {
+      const messageMedia = new MessageMedia(mimeType, media);
+      const whatsapp = whatsappClients.get(clientId);
+      response = await whatsapp.sendMessage(userId, messageMedia);
+    } else {
+      const whatsapp = whatsappClients.get(clientId);
+      response = await whatsapp.sendMessage(userId, message);
     }
-}
+
+    return response;
+  } catch (e: any) {
+    console.log("ERROR -> ", e);
+  }
+};
 
 const deleteMessages = async (clientId: string, userId: string) => {
-    try {
-        let response;
-        if(clientId && userId){
-            response = await UserModel.updateMany({ clientId: clientId, userId: userId }, { messages: [] });
-        } else if(clientId){
-            response = await UserModel.updateMany({ clientId: clientId }, { messages: [] });
-        } else {
-            response = await UserModel.find();
-        }
-        
-        return response;
-   
-    } catch (e: any) {
-        console.log("ERROR -> ", e);
+  try {
+    let response;
+    if (clientId && userId) {
+      response = await UserModel.updateMany(
+        { clientId: clientId, userId: userId },
+        { messages: [] }
+      );
+    } else if (clientId) {
+      response = await UserModel.updateMany(
+        { clientId: clientId },
+        { messages: [] }
+      );
+    } else {
+      response = await UserModel.find();
     }
-}
+
+    return response;
+  } catch (e: any) {
+    console.log("ERROR -> ", e);
+  }
+};
 
 const MessageService = {
-    getMessages,
-    deleteMessages,
-    createMessages
-}
+  getMessages,
+  deleteMessages,
+  createMessages,
+};
 
 export default MessageService;
