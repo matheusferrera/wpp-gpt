@@ -8,7 +8,7 @@ A WhatsApp web automation app.
 Clone the project
 
 ```bash
-  git clone https://github.com/fillipefbr/wweb.git
+  git clone https://github.com/matheusferrera/wppJoao
 ```
 
 Go to the project directory
