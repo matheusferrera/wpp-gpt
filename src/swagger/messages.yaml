@@ -1,0 +1,80 @@
+components:
+  schemas:
+
+    SendMessage:
+      type: object
+      required:
+        - remoteId
+        - message
+      properties:
+        remoteId:
+          type: string
+          description: Numero de telefone de quem recebe a mensagem (5561982501719@c.us)
+        message:
+          type: string
+          description: O texto da mensagem que será enviado, caso tenha o campo MEDIA significa que irá enviar uma midia, entao a mensagem irá enviar como legenda
+        mediaType:
+          type: string
+          description: O tipo de midia que será enviada (audio, video ou image)
+        mediaContent:
+          type: string
+          description: O conteudo da midia em base64
+      example:
+        remoteId: 5561982501719@c.us
+        message: "Legenda da foto"
+        mediaType: image
+        mediaContent: base64
+      
+
+tags:
+  name: Messages
+  description: Envie e veja as mensagens
+
+/messages:
+  post:
+    summary: Envie uma nova mensagem
+    tags: [Messages]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SendMessage'
+    responses:
+      200:
+        description: The created user.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      500:
+        description: Some server error
+
+/messages/{remoteId}/{limit}:
+  get:
+    summary: Obtem o histórico de mensagens específica pelo ID
+    tags: [Messages]
+    parameters:
+      - in: path
+        name: remoteId
+        schema:
+          type: string
+        required: true
+        description: O ID contato das mesnagens a serem recuperadas
+      - in: path
+        name: limit
+        schema:
+          type: string
+        required: true
+        description: O numero de mensagens retornadas
+    responses:
+      200:
+        description: A mensagem específica
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      404:
+        description: Mensagem não encontrada
+      500:
+        description: Algum erro no servidor

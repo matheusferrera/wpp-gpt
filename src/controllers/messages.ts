@@ -1,50 +1,32 @@
 import { Request, Response } from "express";
 import MessageService from "../services/messages";
+import { SendMessageDto } from "../dto/message/sendMessage.dto";
 
-const getMessages = async(req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        const userId = req.params.userId;
-        const response = await MessageService.getMessages(clientId, userId);
-        res.send(response);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-}
+const getMessages = async (req: Request, res: Response) => {
+  try {
+    const response = await MessageService.getMessages(
+      req.params.clientId,
+      +req.params.limit
+    );
+    res.send(response);
+  } catch (e: any) {
+    res.status(500).send(e.toString());
+  }
+};
 
-const createMessages = async(req: Request, res: Response) => {
-    try {
-        const clientId = req.body.clientId;
-        const userId = req.body.userId;
-        const remoteId = req.body.remoteId;
-        const message = req.body.message;
-        const mimeType = req.body.mimeType;
-        const media = req.body.media;
-        const isTemplate = req.body.isTemplate;
-        const template = req.body.template;
-        const response = await MessageService.createMessages(clientId, remoteId, userId, message, mimeType, media, isTemplate, template);
-        res.send(response);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-}
-
-const deleteMessages = async(req: Request, res: Response) => {
-    try {
-        const clientId = req.params.clientId;
-        const userId = req.params.userId;
-        console.log("DETE -> ", clientId);
-        const response = await MessageService.deleteMessages(clientId, userId);
-        res.send(response);
-    } catch (e: any) {
-        res.status(500).send(e.toString());
-    }
-}
+const sendMessages = async (req: Request, res: Response) => {
+  try {
+    const sendMessagesDto: SendMessageDto = req.body;
+    const response = await MessageService.sendMessages(sendMessagesDto);
+    res.send(response);
+  } catch (e: any) {
+    res.status(500).send(e.toString());
+  }
+};
 
 const MessageController = {
-    getMessages,
-    createMessages,
-    deleteMessages
-}
+  getMessages,
+  sendMessages,
+};
 
-export default MessageController
+export default MessageController;

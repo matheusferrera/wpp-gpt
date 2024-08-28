@@ -1,29 +1,18 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express } from "express";
 import http from "http";
-import { Server } from "socket.io";
-import { Client, LocalAuth, Chat } from "whatsapp-web.js";
+import { Client, LocalAuth, Message } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 import cors from "cors";
 import dotenv from "dotenv";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import WhatsappUtil from "./util/whatsappUtil";
 
 // API files
 import messages from "./routes/messages";
-import clients from "./routes/clients";
-import chats from "./routes/chats";
-import users from "./routes/users";
-import groups from "./routes/groups";
-import contacts from "./routes/contacts";
-import templates from "./routes/templates";
-
-// Sockets
-import { initializeSocket } from "./sockets/sockets";
 
 // Environment variables configuration
 dotenv.config();
-
-const MONGODB_URI = process.env.MONGODB_URI || "unknown";
 
 //=======================================================================================
 //===================================> API config <======================================
@@ -65,205 +54,72 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // API Routes
 app.use(cors());
-app.use(express.json({limit: '50mb'}));
-app.use(express.urlencoded({limit: '50mb'}));
-app.use('/messages', messages);
-app.use('/clients', clients);
-app.use('/chats', chats);
-app.use('/users', users);
-app.use('/groups', groups);
-app.use('/contacts', contacts);
-app.use('/template', templates)
-
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
-
-// Require database
-import { MongoStore } from "wwebjs-mongo";
-import mongoose from "mongoose";
-
-// MongoDB Models
-import MessageModel from "./models/Message";
-import User from "./models/User";
-import ClientModel from "./models/Client";
-import ChatModel from "./models/Chat";
-
-// MongoDB connection
-mongoose.connect(MONGODB_URI);
-const db = mongoose.connection;
-const store = new MongoStore({ mongoose: mongoose });
-
-db.once("open", async () => {
-  console.log("\x1b[36m[DB] => Server connected to MongoDB\x1b[0m");
-
-  // Create a change stream on the Message collection
-  const changeStream = MessageModel.watch();
-
-  // // Get all clients from DB
-  const savedClients = await ClientModel.find();
-
-  // //Initialize all WhatsApp clients
-  savedClients.forEach((client:any) => {
-    const clientId = client["_id"].toString();
-    console.log(
-      `[initializeClientFunction] => Initializing client - ${clientId}`
-    );
-    // Initialize WhatsApp client if not already initialized
-    if (!whatsappClients.has(clientId)) {
-      initializeWhatsAppClient(clientId)
-        .then((whatsappClient) => {
-          console.log(
-            `[initializeClientFunction] => Client initialized - ${clientId}`
-          );
-          console.log(
-            `[initializeClientFunction] => Initializing sniffer - ${clientId}`
-          );
-          snifferWhatsAppClient(clientId, whatsappClient);
-        })
-        .then((sniffer) => {
-            console.log(
-              `[initializeClientFunction] => Sniffer initialized - ${clientId}`
-            )
-        });
-    }
-  });
-
-  // Listen for change events
-  changeStream.on("change", (change) => {
-    // console.log("Change detected:", change);
-    console.log(`[snifferDB] => new modification DB`);
-    console.log(change.ns);
-    // Emit a socket event or perform any action based on the change
-  });
-});
-
-// Handle MongoDB connection errors
-db.on("error", (error) => {
-  console.error("\x1b[31m[DB] => MongoDB connection error:\x1b[0m", error);
-});
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb" }));
+app.use("/messages", messages);
 
 //========================================================================================
 //================================>  Whatsapp config  <===================================
 //========================================================================================
 
-// WhatsApp clients map to store client instances by clientId
-const whatsappClients = new Map();
+let whatsappClientInitialize: Client | null = null;
+let whatsappClient: Promise<Client>;
 
-// Function to initialize WhatsApp client with clientId
-async function initializeWhatsAppClient(clientId: any) {
-  const whatsappClient = new Client({
+// Função para inicializar o cliente WhatsApp
+async function initializeWhatsAppClient(): Promise<Client> {
+  whatsappClientInitialize = new Client({
     authStrategy: new LocalAuth({
-      dataPath: "client_"+clientId,
+      dataPath: "client_wpp",
     }),
+    puppeteer: {
+      headless: false, // Inicia o navegador em modo não-headless
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    },
   });
 
-  whatsappClient.on("loading_screen", (percent, message) => {
-    console.log(
-      `[initializeWhatsAppClient] => Loading whatsapp connection ${percent}% - ${clientId}`
-    );
+  whatsappClientInitialize.on("authenticated", () => {
+    console.log(`[initializeWhatsAppClient] => Client authenticated`);
   });
 
-  whatsappClient.on("authenticated", () => {
-    console.log(
-      `[initializeWhatsAppClient] => Client authenticated - ${clientId}`
-    );
+  whatsappClientInitialize.on("auth_failure", (msg) => {
+    console.log(`[initializeWhatsAppClient] => Auth failure: ${msg}`);
   });
 
-  whatsappClient.on("auth_failure", (msg) => {
-    console.log(`[initializeWhatsAppClient] => Auth failure - ${clientId}`);
-  });
-
-  whatsappClient.on("qr", (qr) => {
-    console.log(
-      `[initializeWhatsAppClient] => Generated qr-code - ${clientId}`
-    );
+  whatsappClientInitialize.on("qr", (qr) => {
+    console.log(`[initializeWhatsAppClient] => Generated qr-code`);
     qrcode.generate(qr, { small: true });
     console.log(qr);
   });
 
-  whatsappClient.on("ready", () => {
-    
+  whatsappClientInitialize.on("ready", () => {
     console.log(
-      `\u001b[34m[initializeWhatsAppClient] => Client is READY - ${clientId}\u001b[0m`
+      `\u001b[34m[initializeWhatsAppClient] => Client is READY \u001b[0m`
     );
   });
 
-  await whatsappClient.initialize();
+  whatsappClientInitialize.on("message", (message: Message) => {
+    console.log(
+      `\u001b[34m[WhatsAppClient] => \u001b[22mRecive message \u001b[0m`,
+      message.id.remote
+    );
 
-  // Store the client instance in the map
-  whatsappClients.set(clientId, whatsappClient);
-
-  return whatsappClient;
-}
-
-async function snifferWhatsAppClient(clientId: any, whatsappClient: Client) {
-  
-  whatsappClient.on("message_create", async (message) => {
-
-    if(message.fromMe) {
-      console.log(`[snifferWhatsAppClient] => Sent message - ${clientId}`);
-
-      // get last N chats
-      const chats = await whatsappClient.getChats();
-      const n = 3;
-      const lastNChats = chats.slice(0, n);
-
-      // get last N messages for a window-specific chat
-      const wppId = lastNChats[0].id._serialized;                                     // example
-      const activeChat = chats.filter((chat) => chat.id._serialized == wppId)[0];
-      const searchOptions = { limit: 10 };
-      const last10MessageActiveChat = await activeChat.fetchMessages(searchOptions);
-
-      // emit socket events for the frontend
-      io.to(clientId).emit("message-sent", message);
-      io.to(clientId).emit("last-chats", lastNChats);
-      io.to(clientId).emit("last-messages", last10MessageActiveChat);
-    } else {
-      console.log(`[snifferWhatsAppClient] => Received message - ${clientId}`);
-      io.to(clientId).emit("message-received", message);
-    }
-
-    const userId = message.from;
-
-    // Ignore status messages
-    if (userId !== "status@broadcast") {
-      // Create a new message document
-      const newMessage = new MessageModel(message);
-      const messageChat: Chat = await message.getChat();
- 
-      // Find the chat by clientId and save the message document to the collection
-      ChatModel.findOneAndUpdate(
-        { remoteId: message.id.remote, clientId: clientId, isGroup: messageChat.isGroup },
-        { $push: { messages: newMessage } },
-        { upsert: true, new: true }
-      )
-      .then((user) => {
-        console.log(
-          `\x1b[36m[snifferWhatsAppClient] => Saved chat into DB - ${clientId}\x1b[0m`
-        );
-      })
-      .catch((error) => {
-        console.log(
-          `\x1b[31m[snifferWhatsAppClient ERROR] => Save chat into DB - ${clientId} // ${error}\x1b[0m`
-        );
-      });
-
-    }
+    // Adiciona a nova mensagem ao buffer
+    WhatsappUtil.bufferAnalyzeMessage(message);
   });
+
+  await whatsappClientInitialize.initialize();
+  return whatsappClientInitialize;
 }
 
-// WebSocket initialization
-initializeSocket();
+// Inicializa o cliente WhatsApp e guarda a promessa
+whatsappClient = initializeWhatsAppClient();
 
 // Start the server
+const server = http.createServer(app);
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log(`\x1b[33m[server] => Server is running on port ${port}\x1b[0m`);
 });
 
 // Exports to use in other files
-export { io, whatsappClients, initializeWhatsAppClient };
+export { whatsappClient };
