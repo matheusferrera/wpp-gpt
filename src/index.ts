@@ -114,6 +114,37 @@ async function initializeWhatsAppClient(): Promise<Client> {
 // Inicializa o cliente WhatsApp e guarda a promessa
 whatsappClient = initializeWhatsAppClient();
 
+//========================================================================================
+//================================>  Queue config  <===================================
+//========================================================================================
+
+import Queue from "bull";
+import { createBullBoard } from "@bull-board/api";
+import { BullAdapter } from "@bull-board/api/bullAdapter";
+import { ExpressAdapter } from "@bull-board/express";
+
+const messageQueue = new Queue("messageQueue", {
+  redis: {
+    host: "127.0.0.1",
+    port: 6379,
+  },
+});
+
+messageQueue.process(async (job) => {
+  console.log("EXECUTANDO QUEUE -> ", job.id);
+});
+
+// Bull-board setup
+const serverAdapter = new ExpressAdapter();
+serverAdapter.setBasePath("/admin/queues");
+
+const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
+  queues: [new BullAdapter(messageQueue)],
+  serverAdapter: serverAdapter,
+});
+
+app.use("/admin/queues", serverAdapter.getRouter());
+
 // Start the server
 const server = http.createServer(app);
 const port = process.env.PORT || 3000;
@@ -122,4 +153,4 @@ server.listen(port, () => {
 });
 
 // Exports to use in other files
-export { whatsappClient };
+export { whatsappClient, messageQueue };

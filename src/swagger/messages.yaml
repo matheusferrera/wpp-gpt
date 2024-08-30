@@ -25,6 +25,63 @@ components:
         mediaType: image
         mediaContent: base64
       
+    SendMessageMassive:
+      type: object
+      required:
+        - remoteId
+        - message
+        - timeToSend
+      properties:
+        remoteId:
+          type: array
+          description: Array com numeros de telefones de quem irá recebe a mensagem (5561982501719@c.us)
+        message:
+          type: string
+          description: O texto da mensagem que será enviado, caso tenha o campo MEDIA significa que irá enviar uma midia, entao a mensagem irá enviar como legenda
+        timeToSend:
+          type: int
+          description: O horário em UNIXTIME que será agendada as mensagens (os horários serão compensados aleatóriamente afim de evitar ban)
+        mediaType:
+          type: string
+          description: O tipo de midia que será enviada (audio, video ou image)
+        mediaContent:
+          type: string
+          description: O conteudo da midia em base64
+      example:
+        remoteId: [5561982501719@c.us, 5561982501820@c.us]
+        message: "Legenda da foto"
+        timeToSend: 1724873934
+        mediaType: image
+        mediaContent: base64
+
+    SendMessageMassiveResp:
+      type: object
+      required:
+        - content
+        - messages
+      properties:
+        content:
+          type: string
+          description: O conteúdo da mensagem que foi enviada
+        messages:
+          type: array
+          description: Lista de mensagens enviadas com detalhes
+          items:
+            type: object
+            properties:
+              to:
+                type: string
+                description: O número de telefone do destinatário (5561982501719@c.us)
+              timeToSend:
+                type: int
+                description: O horário em UNIXTIME que a mensagem foi agendada para envio
+      example:
+        content: "Hello world"
+        messages:
+          - to: 5561982501719@c.us
+            timeToSend: 1724873934
+          - to: 5561982501820@c.us
+            timeToSend: 1724873945
 
 tags:
   name: Messages
@@ -47,6 +104,26 @@ tags:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
+      500:
+        description: Some server error
+
+/messages/massive:
+  post:
+    summary: Envie mensagens em massa
+    tags: [Messages]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SendMessageMassive'
+    responses:
+      200:
+        description: The created user.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageMassiveResp'
       500:
         description: Some server error
 
