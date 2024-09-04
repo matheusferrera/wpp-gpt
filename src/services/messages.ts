@@ -1,114 +1,52 @@
-import { Document } from "mongoose";
-import { whatsappClient } from "..";
-import { messageQueue } from "..";
-import { SendMessageMassiveDto } from "../dto/message/sendMassiveMessage.dto";
-import { SendMessageDto } from "../dto/message/sendMessage.dto";
-import WhatsappUtil from "../util/whatsappUtil";
-import { SendMessageMassiveRespDto } from "../dto/message/sendMassiveMessageResp.dto";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { PaginationDto } from "../dto/query/pagination.dto";
+import { PatchMessageDto } from "../dto/message/PatchMessage.dto";
 
 const prisma = new PrismaClient();
 
-const getMessages = async (remoteId: string, limit: number) => {
+const getMessages = async (pagination: PaginationDto) => {
+  const page = parseInt(pagination.page, 10);
+  const pageSize = parseInt(pagination.pageSize, 10);
+
+  const skip = (page - 1) * pageSize;
+  const take = pageSize;
+
   try {
-    let formatedRemoteId: string =
-      (await WhatsappUtil.formatNumber(remoteId)) ?? "";
-
-    const chatInstance = (await whatsappClient).getChatById(formatedRemoteId);
-
-    const messages = (await chatInstance).fetchMessages({ limit: limit });
-
-    console.log("MESSAGES -> ", messages);
+    const messages = await prisma.message.findMany({
+      skip,
+      take,
+      orderBy: {
+        createdAt: "desc", // Supondo que você queira ordenar as mensagens pela data de criação
+      },
+    });
 
     return messages;
   } catch (e: any) {
     console.log("ERROR -> ", e);
+    throw e; // Re-lançando o erro para tratamento posterior, se necessário
   }
 };
 
-const sendMessages = async (req: SendMessageDto) => {
+const patchMessages = async (data: PatchMessageDto) => {
+  console.log("DATA NO PATCH -> ", data);
   try {
-    let formatedRemoteId: string =
-      (await WhatsappUtil.formatNumber(req.remoteId)) ?? "";
+    const { id, ...updateData } = data; // Remove o id do data e mantém o restante para update
 
-    let response = (await whatsappClient).sendMessage(
-      formatedRemoteId,
-      req.message
-    );
-
-    return response;
-  } catch (e: any) {
-    console.log("ERROR -> ", e);
-  }
-};
-
-const sendMessagesMassive = async (req: SendMessageMassiveDto) => {
-  try {
-    let currentTimeToSend = req.timeToSend;
-    const now = Math.floor(Date.now() / 1000);
-
-    const date = new Date(currentTimeToSend * 1000);
-    const formatDateInBrazil = date.toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo",
+    const updatedMessage = await prisma.message.update({
+      where: { id },
+      data: updateData as Prisma.MessageUpdateInput,
     });
 
-    console.log("DATA INFORMADA -> ", formatDateInBrazil);
-
-    let response: SendMessageMassiveRespDto = {
-      content: req.message,
-      messages: [],
-    };
-
-    //Verificando se o tempo para envio é válido
-    if (currentTimeToSend < now) {
-      const respErro = `Data informada (${formatDateInBrazil}) é menor que a data atual, por favor insira uma data futura`;
-
-      return { Error: respErro };
-    }
-
-    //Gerando um horario aleatorio para cada remoteId
-    for (const remoteId of req.remoteId) {
-      const randomOffset = Math.floor(Math.random() * 10 * 1000);
-
-      currentTimeToSend += randomOffset;
-
-      //Enviando req para DB um horario aleatorio para cada remoteId
-      const newMessage = await prisma.message.create({
-        data: {
-          to: remoteId,
-          content: req.message,
-          timeToSend: currentTimeToSend,
-        },
-      });
-
-      //Enviando req para a fila
-      const delay = currentTimeToSend - now;
-
-      console.log("DELAY DA MSG -> ", delay);
-      messageQueue.add(
-        {
-          content: req.message,
-          to: newMessage.to,
-        },
-        { delay }
-      );
-
-      response.messages.push({
-        to: newMessage.to,
-        timeToSend: newMessage.timeToSend,
-      });
-    }
-
-    return response;
-  } catch (error) {
-    console.error("Erro ao criar mensagem:", error);
+    return updatedMessage;
+  } catch (e: any) {
+    console.log("ERROR -> ", e);
+    throw e; // Re-lançando o erro para tratamento posterior, se necessário
   }
 };
 
 const MessageService = {
   getMessages,
-  sendMessages,
-  sendMessagesMassive,
+  patchMessages,
 };
 
 export default MessageService;

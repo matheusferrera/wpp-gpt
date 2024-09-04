@@ -20,5 +20,20 @@ model Message {
   updatedAt DateTime @updatedAt
   to     String   @db.VarChar(255)
   content   String?
+  contentType     ContentType @default(text)
   timeToSend Int
+  status     MessageStatus @default(await)
+}
+
+enum MessageStatus {
+  await
+  send
+  error
+}
+
+enum ContentType {
+  text
+  audio
+  video
+  pdf
 }

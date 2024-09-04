@@ -1,46 +1,33 @@
 import { Request, Response } from "express";
 import MessageService from "../services/messages";
-import { SendMessageDto } from "../dto/message/sendMessage.dto";
-import { SendMessageMassiveDto } from "../dto/message/sendMassiveMessage.dto";
+import { PaginationDto } from "../dto/query/pagination.dto";
+import { plainToInstance } from "class-transformer";
+import { PatchMessageDto } from "../dto/message/PatchMessage.dto";
 
 const getMessages = async (req: Request, res: Response) => {
   try {
-    const response = await MessageService.getMessages(
-      req.params.clientId,
-      +req.params.limit
-    );
+    const dtoInstance = plainToInstance(PaginationDto, req.query as object);
+    const response = await MessageService.getMessages(dtoInstance);
     res.send(response);
   } catch (e: any) {
     res.status(500).send(e.toString());
   }
 };
 
-const sendMessages = async (req: Request, res: Response) => {
+const patchMessages = async (req: Request, res: Response) => {
   try {
-    const sendMessagesDto: SendMessageDto = req.body;
-    const response = await MessageService.sendMessages(sendMessagesDto);
+    const dtoInstance = plainToInstance(PatchMessageDto, req.body as object);
+    const response = await MessageService.patchMessages(dtoInstance);
     res.send(response);
   } catch (e: any) {
-    res.status(500).send(e.toString());
-  }
-};
-
-const sendMessagesMassive = async (req: Request, res: Response) => {
-  try {
-    const SendMessageMassiveDto: SendMessageMassiveDto = req.body;
-    const response = await MessageService.sendMessagesMassive(
-      SendMessageMassiveDto
-    );
-    res.send(response);
-  } catch (e: any) {
-    res.status(500).send(e.toString());
+    console.log("ERRO NO PATCH !!!! -> ", e.meta.cause);
+    res.status(500).send(e.meta.cause);
   }
 };
 
 const MessageController = {
   getMessages,
-  sendMessages,
-  sendMessagesMassive,
+  patchMessages,
 };
 
 export default MessageController;

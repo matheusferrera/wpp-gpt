@@ -10,6 +10,7 @@ import WhatsappUtil from "./util/whatsappUtil";
 
 // API files
 import messages from "./routes/messages";
+import wpp from "./routes/wpp";
 
 // Environment variables configuration
 dotenv.config();
@@ -57,6 +58,7 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 app.use("/messages", messages);
+app.use("/wpp", wpp);
 
 //========================================================================================
 //================================>  Whatsapp config  <===================================
@@ -130,8 +132,8 @@ const messageQueue = new Queue("messageQueue", {
   },
 });
 
-messageQueue.process(async (job) => {
-  console.log("EXECUTANDO QUEUE -> ", job.id);
+messageQueue.process("Massive messages", async (job) => {
+  console.log("EXECUTANDO QUEUE massive message -> ", job.id);
 });
 
 // Bull-board setup
