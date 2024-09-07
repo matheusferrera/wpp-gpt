@@ -20,6 +20,7 @@ const getQrCode = async (req: Request, res: Response) => {
 };
 
 const sendMessages = async (req: Request, res: Response) => {
+  console.log(`[API - Send message] => Requisicao recebida`);
   try {
     const sendMessagesDto: SendMessageDto = req.body;
     const response = await WppService.sendMessages(sendMessagesDto);

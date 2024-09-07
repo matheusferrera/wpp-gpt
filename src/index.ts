@@ -40,7 +40,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://51.20.119.162:3000",
+        url: "http://51.21.3.23:3000",
         // url: "http://localhost:3000",
       },
       {
@@ -81,11 +81,11 @@ async function initializeWhatsAppClient(): Promise<Client> {
     authStrategy: new LocalAuth({
       dataPath: "client_wpp",
     }),
-     puppeteer: {
-       executablePath: "/usr/bin/chromium-browser",
-       //headless: false, // Inicia o navegador e abre o wpp
-       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-     },
+    puppeteer: {
+      executablePath: "/usr/bin/chromium-browser",
+      //headless: false, // Inicia o navegador e abre o wpp
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    },
   });
 
   whatsappClientInitialize.on("authenticated", () => {
@@ -98,9 +98,7 @@ async function initializeWhatsAppClient(): Promise<Client> {
 
   whatsappClientInitialize.on("qr", (qr) => {
     console.log(`[initializeWhatsAppClient] => Generated qr-code`);
-    qrcode.generate(qr, { small: true });
     qrCodeWpp = qr;
-    console.log(qr);
   });
 
   whatsappClientInitialize.on("ready", () => {
