@@ -5,6 +5,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import https from "https";
+import fs from "fs";
+import path from "path";
 
 // API files
 import messages from "./routes/messages";
@@ -82,7 +85,7 @@ async function initializeWhatsAppClient(): Promise<Client> {
       dataPath: "client_wpp",
     }),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       //headless: false, // Inicia o navegador e abre o wpp
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
@@ -163,12 +166,19 @@ const messageQueue = new Queue("messageQueue", {
 //================================>  INITIALIZE API  <===================================
 //========================================================================================
 
-// Start the server
-app.use(cors());
-const server = http.createServer(app);
+// Certificado SSL e chave privada
+const sslOptions = {
+  key: fs.readFileSync(path.join("server.key")),
+  cert: fs.readFileSync(path.join("server.cert")),
+};
+
+// Inicie o servidor HTTPS
 const port = process.env.PORT || 3000;
+const server = https.createServer(sslOptions, app);
 server.listen(port, () => {
-  console.log(`\x1b[33m[server] => Server is running on port ${port}\x1b[0m`);
+  console.log(
+    `\x1b[33m[server] => HTTPS Server is running on port ${port}\x1b[0m`
+  );
 });
 
 // Exports to use in other files
