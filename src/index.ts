@@ -78,7 +78,7 @@ async function initializeWhatsAppClient(): Promise<Client> {
       dataPath: "client_wpp",
     }),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       //headless: false, // Inicia o navegador e abre o wpp
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
