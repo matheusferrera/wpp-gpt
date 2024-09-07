@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import { whatsappClient, qrCodeWpp } from "../wppClient";
+import { whatsappClient, qrCodeWpp } from "..";
 import { messageQueue } from "..";
 import { SendMessageMassiveDto } from "../dto/message/sendMassiveMessage.dto";
 import { SendMessageDto } from "../dto/message/sendMessage.dto";
@@ -21,7 +21,6 @@ const sendMessages = async (req: SendMessageDto) => {
   try {
     let formatedRemoteId: string =
       (await WhatsappUtil.formatNumber(req.remoteId)) ?? "";
-
     let response = (await whatsappClient).sendMessage(
       formatedRemoteId,
       req.message
