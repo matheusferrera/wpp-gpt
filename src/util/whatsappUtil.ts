@@ -1,5 +1,5 @@
 import { Message } from "whatsapp-web.js";
-import { whatsappClient } from "../wppClient";
+import { whatsappClient } from "..";
 import gpt from "../gpt";
 
 const formatNumber = async (remoteId: string) => {
