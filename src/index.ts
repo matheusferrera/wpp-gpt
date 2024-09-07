@@ -43,6 +43,10 @@ const options = {
         url: "http://51.20.181.153:3000",
         // url: "http://localhost:3000",
       },
+      {
+        url: "http://localhost:3000",
+        // url: "http://localhost:3000",
+      },
     ],
   },
   apis: ["**/swagger/*.yaml"],
@@ -55,7 +59,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 // API Routes
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/messages", messages);
 app.use("/wpp", wpp);
 
@@ -78,9 +82,20 @@ async function initializeWhatsAppClient(): Promise<Client> {
       dataPath: "client_wpp",
     }),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
-      //headless: false, // Inicia o navegador e abre o wpp
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+      args: [
+        "--use-gl=egl",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-gpu",
+      ],
+      ignoreDefaultArgs: ["--disable-extensions"],
+      // executablePath: "/usr/bin/chromium-browser",
     },
   });
 
