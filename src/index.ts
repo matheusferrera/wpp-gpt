@@ -74,7 +74,7 @@ async function initializeWhatsAppClient(): Promise<Client> {
       dataPath: "client_wpp",
     }),
     puppeteer: {
-      headless: false, // Inicia o navegador em modo não-headless
+      executablePath: '/usr/bin/chromium-browser',
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
   });
@@ -121,9 +121,6 @@ whatsappClient = initializeWhatsAppClient();
 //========================================================================================
 
 import Queue from "bull";
-import { createBullBoard } from "@bull-board/api";
-import { BullAdapter } from "@bull-board/api/bullAdapter";
-import { ExpressAdapter } from "@bull-board/express";
 
 const messageQueue = new Queue("messageQueue", {
   redis: {
@@ -132,20 +129,6 @@ const messageQueue = new Queue("messageQueue", {
   },
 });
 
-messageQueue.process("Massive messages", async (job) => {
-  console.log("EXECUTANDO QUEUE massive message -> ", job.id);
-});
-
-// Bull-board setup
-const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath("/admin/queues");
-
-const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
-  queues: [new BullAdapter(messageQueue)],
-  serverAdapter: serverAdapter,
-});
-
-app.use("/admin/queues", serverAdapter.getRouter());
 
 // Start the server
 const server = http.createServer(app);
