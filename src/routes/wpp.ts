@@ -7,7 +7,7 @@ import { SendMessageMassiveDto } from "../dto/message/sendMassiveMessage.dto";
 const router: Router = express.Router();
 
 // GET /messages
-router.get("/:clientId/:limit", WppController.getMessages);
+router.get("/qrCode", WppController.getQrCode);
 
 // POST /messages
 router.post(

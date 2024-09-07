@@ -125,25 +125,13 @@ tags:
             schema:
               $ref: '#/components/schemas/SendMessageMassiveResp'
       500:
-        description: Some server error
+        description: Some server error]
 
-/wpp/{remoteId}/{limit}:
+
+/wpp/qrCode:
   get:
     summary: Obtem o histórico de mensagens específica pelo ID
     tags: [wpp]
-    parameters:
-      - in: path
-        name: remoteId
-        schema:
-          type: string
-        required: true
-        description: O ID contato das mesnagens a serem recuperadas
-      - in: path
-        name: limit
-        schema:
-          type: string
-        required: true
-        description: O numero de mensagens retornadas
     responses:
       200:
         description: A mensagem específica
@@ -155,3 +143,4 @@ tags:
         description: Mensagem não encontrada
       500:
         description: Algum erro no servidor
+

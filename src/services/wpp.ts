@@ -1,5 +1,5 @@
-import { Document } from "mongoose";
-import { whatsappClient } from "..";
+import QRCode from "qrcode";
+import { whatsappClient, qrCodeWpp } from "../wppClient";
 import { messageQueue } from "..";
 import { SendMessageMassiveDto } from "../dto/message/sendMassiveMessage.dto";
 import { SendMessageDto } from "../dto/message/sendMessage.dto";
@@ -9,18 +9,9 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const getMessages = async (remoteId: string, limit: number) => {
+const getQrCode = async () => {
   try {
-    let formatedRemoteId: string =
-      (await WhatsappUtil.formatNumber(remoteId)) ?? "";
-
-    const chatInstance = (await whatsappClient).getChatById(formatedRemoteId);
-
-    const messages = (await chatInstance).fetchMessages({ limit: limit });
-
-    console.log("MESSAGES -> ", messages);
-
-    return messages;
+    return qrCodeWpp;
   } catch (e: any) {
     console.log("ERROR -> ", e);
   }
@@ -115,9 +106,9 @@ const sendMessagesMassive = async (req: SendMessageMassiveDto) => {
 };
 
 const WppService = {
-  getMessages,
   sendMessages,
   sendMessagesMassive,
+  getQrCode,
 };
 
 export default WppService;
