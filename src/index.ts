@@ -85,7 +85,7 @@ async function initializeWhatsAppClient(): Promise<Client> {
       dataPath: "client_wpp",
     }),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
+      executablePath: "/usr/bin/chromium-browser",
       //headless: false, // Inicia o navegador e abre o wpp
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
@@ -168,12 +168,14 @@ const messageQueue = new Queue("messageQueue", {
 
 // Certificado SSL e chave privada
 const sslOptions = {
-  key: fs.readFileSync(path.join("server.key")),
-  cert: fs.readFileSync(path.join("server.cert")),
+  key: fs.readFileSync("/etc/letsencrypt/live/api-china.work.gd/privkey.pem"),
+
+
+  cert: fs.readFileSync("/etc/letsencrypt/live/api-china.work.gd/fullchain.pem"),
 };
 
 // Inicie o servidor HTTPS
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 443;
 const server = https.createServer(sslOptions, app);
 server.listen(port, () => {
   console.log(
