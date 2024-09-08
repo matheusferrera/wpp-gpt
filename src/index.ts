@@ -5,10 +5,14 @@ import cors from "cors";
 import dotenv from "dotenv";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import https from "https";
+import fs from "fs";
+import path from "path";
 
 // API files
 import messages from "./routes/messages";
 import wpp from "./routes/wpp";
+import templates from "./routes/template";
 
 // Environment variables configuration
 dotenv.config();
@@ -40,11 +44,11 @@ const options = {
     },
     servers: [
       {
-        url: "http://51.20.119.162:3000",
+        url: "https://api-china.work.gd",
         // url: "http://localhost:3000",
       },
       {
-        url: "http://localhost:3000",
+        url: "https://localhost:3000",
         // url: "http://localhost:3000",
       },
     ],
@@ -62,6 +66,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/messages", messages);
 app.use("/wpp", wpp);
+app.use("/template", templates);
 
 //========================================================================================
 //================================>  Wpp client  <===================================
@@ -81,11 +86,11 @@ async function initializeWhatsAppClient(): Promise<Client> {
     authStrategy: new LocalAuth({
       dataPath: "client_wpp",
     }),
-     puppeteer: {
-       executablePath: "/usr/bin/chromium-browser",
-       //headless: false, // Inicia o navegador e abre o wpp
-       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-     },
+    puppeteer: {
+      executablePath: "/usr/bin/chromium-browser",
+      //headless: false, // Inicia o navegador e abre o wpp
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    },
   });
 
   whatsappClientInitialize.on("authenticated", () => {
@@ -98,9 +103,7 @@ async function initializeWhatsAppClient(): Promise<Client> {
 
   whatsappClientInitialize.on("qr", (qr) => {
     console.log(`[initializeWhatsAppClient] => Generated qr-code`);
-    qrcode.generate(qr, { small: true });
     qrCodeWpp = qr;
-    console.log(qr);
   });
 
   whatsappClientInitialize.on("ready", () => {
@@ -165,12 +168,21 @@ const messageQueue = new Queue("messageQueue", {
 //================================>  INITIALIZE API  <===================================
 //========================================================================================
 
-// Start the server
-app.use(cors());
-const server = http.createServer(app);
-const port = process.env.PORT || 3000;
+// Certificado SSL e chave privada
+const sslOptions = {
+  key: fs.readFileSync("/etc/letsencrypt/live/api-china.work.gd/privkey.pem"),
+  cert: fs.readFileSync(
+    "/etc/letsencrypt/live/api-china.work.gd/fullchain.pem"
+  ),
+};
+
+// Inicie o servidor HTTPS
+const port = process.env.PORT || 443;
+const server = https.createServer(sslOptions, app);
 server.listen(port, () => {
-  console.log(`\x1b[33m[server] => Server is running on port ${port}\x1b[0m`);
+  console.log(
+    `\x1b[33m[server] => HTTPS Server is running on port ${port}\x1b[0m`
+  );
 });
 
 // Exports to use in other files

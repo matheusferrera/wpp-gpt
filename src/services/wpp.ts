@@ -21,11 +21,12 @@ const sendMessages = async (req: SendMessageDto) => {
   try {
     let formatedRemoteId: string =
       (await WhatsappUtil.formatNumber(req.remoteId)) ?? "";
+    console.log(`[API - Send message] => Formatou numero ${formatedRemoteId}`);
     let response = (await whatsappClient).sendMessage(
       formatedRemoteId,
       req.message
     );
-
+    console.log(`[API - Send message] => Enviou msg ${formatedRemoteId}`);
     return response;
   } catch (e: any) {
     console.log("ERROR -> ", e);

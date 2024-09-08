@@ -2,6 +2,7 @@
 .wwebjs_auth/
 RemoteAuth*.zip
 client_*
+credential_conta_servico.json
 
 # Logs
 logs

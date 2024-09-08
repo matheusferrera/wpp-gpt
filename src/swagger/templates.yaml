@@ -1,0 +1,27 @@
+
+tags:
+  name: Templates
+  description: Envie templates pré prontos e salve os dados na tabela excel
+
+/template/boas-vindas:
+  post:
+    summary: boas vindas
+    tags: [Templates]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              remoteId:
+                type: string
+    responses:
+      200:
+        description: The created user.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      500:
+        description: Some server error
