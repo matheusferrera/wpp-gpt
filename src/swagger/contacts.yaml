@@ -1,0 +1,157 @@
+tags:
+  name: Contacts
+  description: Manage contacts including creation, update, retrieval, and deletion.
+
+paths:
+  /contacts:
+    get:
+      summary: Retrieve contacts
+      tags:
+        - Contacts
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: true
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          required: true
+          description: Number of items per page
+      responses:
+        200:
+          description: A list of contacts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+        500:
+          description: Some server error
+
+    post:
+      summary: Create a new contact
+      tags:
+        - Contacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactDto'
+      responses:
+        201:
+          description: Contact created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        500:
+          description: Some server error
+
+  /contacts/{id}:
+    patch:
+      summary: Update an existing contact
+      tags:
+        - Contacts
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID of the contact to be updated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchContactDto'
+      responses:
+        200:
+          description: Contact updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        500:
+          description: Some server error
+
+    delete:
+      summary: Delete a contact
+      tags:
+        - Contacts
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID of the contact to be deleted
+      responses:
+        204:
+          description: Contact deleted successfully
+        500:
+          description: Some server error
+
+components:
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the contact
+        remoteid:
+          type: string
+          description: Remote ID of the contact
+        name:
+          type: string
+          description: Name of the contact
+        obs:
+          type: string
+          description: Optional observation or note about the contact
+        mediaContent:
+          type: string
+          description: Optional media content associated with the contact
+        tags:
+          type: array
+          items:
+            type: integer
+          description: Optional list of tags associated with the contact
+
+    CreateContactDto:
+      type: object
+      properties:
+        remoteId:
+          type: string
+        name:
+          type: string
+        obs:
+          type: string
+        tags:
+          type: array
+          items:
+            type: integer
+
+    PatchContactDto:
+      type: object
+      properties:
+        remoteId:
+          type: string
+        name:
+          type: string
+        obs:
+          type: string
+        mediaContent:
+          type: string
+          minLength: 5
+          maxLength: 255
+        tags:
+          type: array
+          items:
+            type: integer

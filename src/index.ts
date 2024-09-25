@@ -13,6 +13,7 @@ import path from "path";
 import messages from "./routes/messages";
 import wpp from "./routes/wpp";
 import templates from "./routes/template";
+import contacts from "./routes/contacts";
 
 // Environment variables configuration
 dotenv.config();
@@ -48,7 +49,7 @@ const options = {
         // url: "http://localhost:3000",
       },
       {
-        url: "https://localhost:3000",
+        url: "http://localhost:3000",
         // url: "http://localhost:3000",
       },
     ],
@@ -67,6 +68,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/messages", messages);
 app.use("/wpp", wpp);
 app.use("/template", templates);
+app.use("/contacts", contacts);
 
 //========================================================================================
 //================================>  Wpp client  <===================================
@@ -87,7 +89,7 @@ async function initializeWhatsAppClient(): Promise<Client> {
       dataPath: "client_wpp",
     }),
     puppeteer: {
-      executablePath: "/usr/bin/chromium-browser",
+      // executablePath: "/usr/bin/chromium-browser",
       //headless: false, // Inicia o navegador e abre o wpp
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
@@ -169,21 +171,32 @@ const messageQueue = new Queue("messageQueue", {
 //========================================================================================
 
 // Certificado SSL e chave privada
-const sslOptions = {
-  key: fs.readFileSync("/etc/letsencrypt/live/api-china.work.gd/privkey.pem"),
-  cert: fs.readFileSync(
-    "/etc/letsencrypt/live/api-china.work.gd/fullchain.pem"
-  ),
-};
 
-// Inicie o servidor HTTPS
-const port = process.env.PORT || 443;
-const server = https.createServer(sslOptions, app);
-server.listen(port, () => {
-  console.log(
-    `\x1b[33m[server] => HTTPS Server is running on port ${port}\x1b[0m`
-  );
-});
+if (process.env.PORT == "443") {
+  const sslOptions = {
+    key: fs.readFileSync("/etc/letsencrypt/live/api-china.work.gd/privkey.pem"),
+    cert: fs.readFileSync(
+      "/etc/letsencrypt/live/api-china.work.gd/fullchain.pem"
+    ),
+  };
+  // Inicie o servidor em PROD
+  const port = process.env.PORT || 443;
+  const server = https.createServer(sslOptions, app);
+  server.listen(port, () => {
+    console.log(
+      `\x1b[33m[server] => HTTPS Server is running on port ${port}\x1b[0m`
+    );
+  });
+} else {
+  // Inicie o servidor em DEV
+  const port = process.env.PORT || 3000;
+  const server = https.createServer(app);
+  app.listen(port, () => {
+    console.log(
+      `\x1b[33m[server] => HTTPS Server is running on port ${port}\x1b[0m`
+    );
+  });
+}
 
 // Exports to use in other files
 export { messageQueue };
