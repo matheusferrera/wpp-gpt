@@ -128,19 +128,26 @@ tags:
         description: Some server error]
 
 
-/wpp/qrCode:
+/wpp/qrCode/{clientId}:
   get:
-    summary: Obtem o histórico de mensagens específica pelo ID
+    summary: Obtem o QR Code para autenticação do cliente
     tags: [wpp]
+    parameters:
+      - in: path
+        name: clientId
+        required: true
+        schema:
+          type: string
+        description: ID do cliente para obter o QR Code
     responses:
       200:
-        description: A mensagem específica
+        description: QR Code obtido com sucesso
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Message'
+              $ref: '#/components/schemas/QRCode'
       404:
-        description: Mensagem não encontrada
+        description: QR Code não encontrado para o cliente especificado
       500:
         description: Algum erro no servidor
 

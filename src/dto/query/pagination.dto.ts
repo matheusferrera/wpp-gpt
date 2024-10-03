@@ -1,4 +1,4 @@
-import { IsNumber, Min, Max, IsString } from "class-validator";
+import { IsNumber, Min, Max, IsString, IsOptional } from "class-validator";
 
 export class PaginationDto {
   @IsString()
@@ -6,4 +6,5 @@ export class PaginationDto {
 
   @IsString()
   pageSize: string = "10"; // Número de itens por página
+
 }

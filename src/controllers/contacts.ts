@@ -4,10 +4,11 @@ import { PaginationDto } from "../dto/query/pagination.dto";
 import { plainToInstance } from "class-transformer";
 import { PatchContactDto } from "../dto/contact/PatchContact.dto";
 import { CreateContactDto } from "../dto/contact/CreateContact.dto";
+import { PaginationContactQueryDto } from "../dto/query/pagination.contact.dto";
 
 const getContacts = async (req: Request, res: Response) => {
   try {
-    const dtoInstance = plainToInstance(PaginationDto, req.query as object);
+    const dtoInstance = plainToInstance(PaginationContactQueryDto, req.query as object);
     const response = await ContactService.getContacts(dtoInstance);
     res.send(response);
   } catch (e: any) {

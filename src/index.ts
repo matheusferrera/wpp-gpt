@@ -10,10 +10,9 @@ import fs from "fs";
 import path from "path";
 
 // API files
-import messages from "./routes/messages";
 import wpp from "./routes/wpp";
-import templates from "./routes/template";
 import contacts from "./routes/contacts";
+import auth from "./routes/auth";
 
 // Environment variables configuration
 dotenv.config();
@@ -50,7 +49,44 @@ const options = {
       },
       {
         url: "http://localhost:3000",
-        // url: "http://localhost:3000",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+      schemas: {
+        LoginRequest: {
+          type: "object",
+          properties: {
+            email: {
+              type: "string",
+              format: "email",
+            },
+            password: {
+              type: "string",
+              format: "password",
+            },
+          },
+          required: ["email", "password"],
+        },
+        LoginResponse: {
+          type: "object",
+          properties: {
+            token: {
+              type: "string",
+            },
+          },
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
       },
     ],
   },
@@ -65,106 +101,140 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-app.use("/messages", messages);
 app.use("/wpp", wpp);
-app.use("/template", templates);
 app.use("/contacts", contacts);
+app.use('/auth', auth);
 
 //========================================================================================
 //================================>  Wpp client  <===================================
 //========================================================================================
-
 import { Client, LocalAuth, Message } from "whatsapp-web.js";
-import qrcode from "qrcode-terminal";
-import WhatsappUtil from "./util/whatsappUtil";
 
-let whatsappClientInitialize: Client | null = null;
-let whatsappClient: Promise<Client>;
-let qrCodeWpp: string = "";
+interface WhatsAppClientInstance {
+  client: Client;
+  qrCode: string;
+  recentMessages: Map<string, Message[]>;
+}
 
-// Função para inicializar o cliente WhatsApp
-async function initializeWhatsAppClient(): Promise<Client> {
-  whatsappClientInitialize = new Client({
+let whatsappClients: Map<string, WhatsAppClientInstance> = new Map();
+
+// Função para inicializar um cliente WhatsApp
+async function initializeWhatsAppClient(clientId: string): Promise<Client> {
+
+  console.log("[INITIALIZING CLIENT]    =>   ClientId = ", clientId)
+
+  const client = new Client({
     authStrategy: new LocalAuth({
-      dataPath: "client_wpp",
+      dataPath: `client_wpp_${clientId}`,
     }),
     puppeteer: {
-      // executablePath: "/usr/bin/chromium-browser",
-      //headless: false, // Inicia o navegador e abre o wpp
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
   });
 
-  whatsappClientInitialize.on("authenticated", () => {
-    console.log(`[initializeWhatsAppClient] => Client authenticated`);
+  
+app.get('/puppeteer', async (req, res) => {
+  const page = client.pupPage;
+  if (!page) {
+    throw new Error("pupPage is undefined");
+  }
+  const content = await page.content();
+
+  res.send(content); // Enviar o conteúdo HTML como resposta
+});
+
+  const clientInstance: WhatsAppClientInstance = {
+    client,
+    qrCode: "",
+    recentMessages: new Map(),
+  };
+
+  client.on("authenticated", () => {
+    console.log(`[initializeWhatsAppClient ${clientId}] => Client authenticated`);
   });
 
-  whatsappClientInitialize.on("auth_failure", (msg) => {
-    console.log(`[initializeWhatsAppClient] => Auth failure: ${msg}`);
+  client.on("auth_failure", (msg) => {
+    console.log(`[initializeWhatsAppClient ${clientId}] => Auth failure: ${msg}`);
   });
 
-  whatsappClientInitialize.on("qr", (qr) => {
-    console.log(`[initializeWhatsAppClient] => Generated qr-code`);
-    qrCodeWpp = qr;
+  client.on("qr", (qr) => {
+    console.log(`[initializeWhatsAppClient ${clientId}] => Generated qr-code`);
+    clientInstance.qrCode = qr;
   });
 
-  whatsappClientInitialize.on("ready", () => {
+  client.on("ready", () => {
     console.log(
-      `\u001b[34m[initializeWhatsAppClient] => Client is READY \u001b[0m`
+      `\u001b[34m[initializeWhatsAppClient ${clientId}] => Client is READY \u001b[0m`
     );
   });
 
-  whatsappClientInitialize.on("message", (message: Message) => {
+  client.on("message", (message: Message) => {
     console.log(
-      `\u001b[34m[WhatsAppClient] => \u001b[22mRecive message \u001b[0m`,
+      `\u001b[34m[WhatsAppClient ${clientId}] => \u001b[22mReceived message \u001b[0m`,
       message.id.remote
     );
 
-    // Adiciona a nova mensagem ao buffer
-    WhatsappUtil.bufferAnalyzeMessage(message);
-  });
+    // Store the message in the recentMessages Map
+    const chatId = message.from;
+    if (!clientInstance.recentMessages.has(chatId)) {
+      clientInstance.recentMessages.set(chatId, []);
+    }
+    clientInstance.recentMessages.get(chatId)?.push(message);
 
-  await whatsappClientInitialize.initialize();
-  return whatsappClientInitialize;
+    //A cada nova mensagem o buffer espera 60 segundos verifica se a ultima mensagem tem 60 segundos
+    setTimeout(() => {
+      const messages = clientInstance.recentMessages.get(chatId);
+      if (messages) {
+        const currentTime = Date.now();
+        const lastMessage = messages[messages.length - 1];
+        const timeSinceLastMessage = currentTime - lastMessage.timestamp * 1000;
+  
+        //Verifica se faz mais de 1 minuto desde o envio da ultima mensagem
+        if (timeSinceLastMessage >= 60000) {
+          console.log(`Removing messages for chatId: ${chatId}`);
+          messages.forEach((msg) => {
+            console.log(`Removed Message ID: ${msg.id._serialized}`);
+            console.log(`From: ${msg.from}`);
+            console.log(`Body: ${msg.body}`);
+            console.log('---');
+          });
+          clientInstance.recentMessages.delete(chatId);
+        } else {
+          console.log(`Skipping deletion for chatId: ${chatId}. Last message is too recent.`);
+        }
+      }
+    }, 60000);
+  });
+  
+
+  await client.initialize();
+  whatsappClients.set(clientId, clientInstance);
+  return client;
 }
 
-// Inicializa o cliente WhatsApp e guarda a promessa
-whatsappClient = initializeWhatsAppClient();
+// Função para obter ou criar um cliente WhatsApp
+async function getOrCreateWhatsAppClient(clientId: string): Promise<Client> {
+  const existingClient = whatsappClients.get(clientId);
+  if (existingClient) {
+    return existingClient.client;
+  }
+  return initializeWhatsAppClient(clientId);
+}
 
-export { whatsappClient, qrCodeWpp };
+// Função para obter o QR code de um cliente específico
+function getQRCode(clientId: string): string | undefined {
+  return whatsappClients.get(clientId)?.qrCode;
+}
+
+export { getOrCreateWhatsAppClient, getQRCode };
 
 //========================================================================================
 //================================>  Queue config  <===================================
 //========================================================================================
 
-import Queue from "bull";
+import { messageQueue, serverAdapter } from "./queue";
 
-const messageQueue = new Queue("messageQueue", {
-  redis: {
-    host: "127.0.0.1",
-    port: 6379,
-  },
-});
-
-//Config para bull dashboard, nao esta funcionando em prod
-// import { createBullBoard } from "@bull-board/api";
-// import { BullAdapter } from "@bull-board/api/bullAdapter";
-// import { ExpressAdapter } from "@bull-board/express";
-
-// messageQueue.process("Massive messages", async (job) => {
-//   console.log("EXECUTANDO QUEUE massive message -> ", job.id);
-// });
-
-// // Bull-board setup
-// const serverAdapter = new ExpressAdapter();
-// serverAdapter.setBasePath("/admin/queues");
-
-// const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
-//   queues: [new BullAdapter(messageQueue)],
-//   serverAdapter: serverAdapter,
-// });
-
-// app.use("/admin/queues", serverAdapter.getRouter());
+app.use("/admin/queues", serverAdapter.getRouter());
 
 //========================================================================================
 //================================>  INITIALIZE API  <===================================

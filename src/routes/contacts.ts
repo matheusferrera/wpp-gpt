@@ -7,13 +7,14 @@ import {
 } from "../validation.middleware";
 import { PatchContactDto } from "../dto/contact/PatchContact.dto";
 import { CreateContactDto } from "../dto/contact/CreateContact.dto";
+import { PaginationContactQueryDto } from "../dto/query/pagination.contact.dto";
 
 const router: Router = express.Router();
 
 // GET contacts (com paginação)
 router.get(
   "/",
-  validationMiddlewareGet(PaginationDto),
+  validationMiddlewareGet(PaginationContactQueryDto),
   ContactController.getContacts.bind(ContactController)
 );
 

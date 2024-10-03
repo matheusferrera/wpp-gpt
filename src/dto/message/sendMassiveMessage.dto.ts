@@ -4,6 +4,8 @@ import {
   Length,
   IsNumber,
   IsArray,
+  Min,
+  Max,
 } from "class-validator";
 
 export class SendMessageMassiveDto {
@@ -15,6 +17,8 @@ export class SendMessageMassiveDto {
   message!: string;
 
   @IsNumber()
+  @Min(1000000000) // Minimum 10-digit number
+  @Max(9999999999) // Maximum 10-digit number
   timeToSend!: number;
 
   @IsOptional()

@@ -2,29 +2,48 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { PaginationDto } from "../dto/query/pagination.dto";
 import { PatchContactDto } from "../dto/contact/PatchContact.dto";
 import { CreateContactDto } from "../dto/contact/CreateContact.dto";
+import { PaginationContactQueryDto } from "../dto/query/pagination.contact.dto";
 
 const prisma = new PrismaClient();
 
-const getContacts = async (pagination: PaginationDto) => {
+const getContacts = async (pagination: PaginationContactQueryDto) => {
   const page = parseInt(pagination.page, 10);
   const pageSize = parseInt(pagination.pageSize, 10);
+
+  console.log("PAGINATION -> ", pagination)
 
   const skip = (page - 1) * pageSize;
   const take = pageSize;
 
   try {
+    let whereClause = {};
+
+    // if (pagination.search) {
+    //   whereClause = {
+    //     OR: [
+    //       { id: parseInt(pagination.search, 10) || undefined },
+    //       { remoteid: { contains: pagination.search, mode: 'insensitive' } },
+    //       { tag: { id:  parseInt(pagination.search, 10) || undefined  } }
+    //     ]
+    //   };
+    // }
+
     const contacts = await prisma.contact.findMany({
+      where: whereClause,
       skip,
       take,
       orderBy: {
-        createdAt: "desc", // Ordenar contatos pela data de criação
+        createdAt: "desc",
+      },
+      include: {
+        tag: true, // Incluir a tag relacionada
       },
     });
 
     return contacts;
   } catch (e: any) {
     console.error("Error in getContacts: ", e);
-    throw e; // Re-lançando o erro para tratamento posterior
+    throw e;
   }
 };
 
@@ -35,11 +54,9 @@ const createContact = async (data: CreateContactDto) => {
         remoteid: data.remoteid,
         name: data.name,
         obs: data.obs || "",
-        ...(data.tags && {
-          tags: {
-            connect: [{ name: "VIP" }],
-          },
-        }),
+        tag: {
+          connect: { id: data.tag },
+        },
       },
     });
 

@@ -1,57 +1,33 @@
-import QRCode from "qrcode";
-import { whatsappClient, qrCodeWpp } from "..";
+import { getOrCreateWhatsAppClient } from "..";
 import { messageQueue } from "..";
 import { SendMessageMassiveDto } from "../dto/message/sendMassiveMessage.dto";
 import { SendMessageDto } from "../dto/message/sendMessage.dto";
-import WhatsappUtil from "../util/whatsappUtil";
+
 import { SendMessageMassiveRespDto } from "../dto/message/sendMassiveMessageResp.dto";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const getQrCode = async () => {
+const sendMessages = async (req: SendMessageDto, clientId: string) => {
   try {
-    return qrCodeWpp;
-  } catch (e: any) {
-    console.log("ERROR -> ", e);
-  }
-};
+    
+    const client = await getOrCreateWhatsAppClient(clientId);
+    let formattedRemoteId = await client.getNumberId(req.remoteId);
 
-const sendMessages = async (req: SendMessageDto) => {
-  try {
-    let formatedRemoteId: string =
-      (await WhatsappUtil.formatNumber(req.remoteId)) ?? "";
-    console.log(`[API - Send message] => Formatou numero ${formatedRemoteId}`);
-    let response = (await whatsappClient).sendMessage(
-      formatedRemoteId,
-      req.message
-    );
-    console.log(`[API - Send message] => Enviou msg ${formatedRemoteId}`);
+    if (formattedRemoteId && formattedRemoteId._serialized) {
+      let response = await client.sendMessage(formattedRemoteId._serialized, req.message);
     return response;
+  }
+    
   } catch (e: any) {
     console.log("ERROR -> ", e);
   }
 };
 
-const sendMessagesMassive = async (req: SendMessageMassiveDto) => {
+const sendMessagesMassive = async (req: SendMessageMassiveDto, clientId: string) => {
   try {
     let currentTimeToSend = req.timeToSend;
-    const now = Math.floor(Date.now() / 1000);
-
-    const date = new Date(currentTimeToSend * 1000);
-    const dateNow = new Date(now * 1000);
-    const formatDateInBrazil = date.toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo",
-    });
-    const formatDateNow = dateNow.toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo",
-    });
-
-    console.log("DATA INFORMADA -> ", formatDateInBrazil);
-    console.log("NOW  -> ", formatDateNow);
-
-    console.log("DATA INFORMADA  [UNIX TIME] -> ", currentTimeToSend);
-    console.log("NOW  [UNIX TIME] -> ", now);
+    const now = Math.floor(Date.now() / 1000);  
 
     let response: SendMessageMassiveRespDto = {
       content: req.message,
@@ -60,42 +36,35 @@ const sendMessagesMassive = async (req: SendMessageMassiveDto) => {
 
     //Verificando se o tempo para envio é válido
     if (currentTimeToSend < now) {
-      const respErro = `Data informada (${formatDateInBrazil}) é menor que a data atual, por favor insira uma data futura`;
+      const respErro = `Por favor insira uma data futura`;
 
       return { Error: respErro };
     }
 
     //Gerando um horario aleatorio para cada remoteId
     for (const remoteId of req.remoteId) {
-      const randomOffset = Math.floor(Math.random() * 10);
+
+      const randomOffset = Math.floor(Math.random() * 20);
 
       currentTimeToSend += randomOffset;
-
-      //Enviando req para DB um horario aleatorio para cada remoteId
-      const newMessage = await prisma.message.create({
-        data: {
-          to: remoteId,
-          content: req.message,
-          timeToSend: currentTimeToSend,
-        },
-      });
 
       //Enviando req para a fila
       const delay = (currentTimeToSend - now) * 1000;
 
-      console.log("DELAY DA MSG -> ", delay);
+      console.log("DELAY DA MSG em s -> ", delay/1000);
       messageQueue.add(
         "Massive messages",
         {
           content: req.message,
-          to: newMessage.to,
+          to: remoteId,
+          clientId: clientId, // Add clientId to the job data
         },
         { delay }
       );
 
       response.messages.push({
-        to: newMessage.to,
-        timeToSend: newMessage.timeToSend,
+        to: remoteId,
+        timeToSend: currentTimeToSend
       });
     }
 
@@ -108,7 +77,7 @@ const sendMessagesMassive = async (req: SendMessageMassiveDto) => {
 const WppService = {
   sendMessages,
   sendMessagesMassive,
-  getQrCode,
+  // Remove getQrCode from here as it's no longer needed in this service
 };
 
 export default WppService;

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray } from "class-validator";
+import { IsString, IsOptional, IsArray, IsNumber } from "class-validator";
 
 export class CreateContactDto {
   @IsString()
@@ -12,6 +12,6 @@ export class CreateContactDto {
   obs?: string;
 
   @IsOptional()
-  @IsArray()
-  tags?: number[];
+  @IsNumber()
+  tag?: number;
 }
